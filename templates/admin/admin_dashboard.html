@@ -1,0 +1,2552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Control Center - SaarthiAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --dark: #0a0a0a;
+            --bg: #0f0f23;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .gradient-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: floatOrb 20s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            top: -250px;
+            left: -250px;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, var(--accent), var(--danger));
+            bottom: -200px;
+            right: -200px;
+            animation-delay: 5s;
+        }
+
+        @keyframes floatOrb {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -50px) scale(1.1); }
+            50% { transform: translate(-30px, 30px) scale(0.9); }
+            75% { transform: translate(40px, -40px) scale(1.05); }
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: var(--card-bg);
+            backdrop-filter: blur(40px);
+            border-right: 1px solid var(--border);
+            padding: 2rem 0;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: transform 0.3s;
+        }
+
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 2px; }
+
+        .sidebar-header {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+            animation: rotateLogo 10s linear infinite;
+        }
+
+        @keyframes rotateLogo {
+            0%, 100% { transform: rotateY(0deg); }
+            50% { transform: rotateY(180deg); }
+        }
+
+        .logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-section { padding: 1.5rem 0; }
+
+        .nav-title {
+            padding: 0 2rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .nav-menu { list-style: none; }
+        .nav-item { padding: 0 1rem; margin-bottom: 0.5rem; }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.2rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+            color: var(--text);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-icon { font-size: 1.4rem; width: 28px; text-align: center; }
+
+        .user-section {
+            margin-top: auto;
+            padding: 1.5rem 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        .user-info h4 { font-size: 0.95rem; margin-bottom: 0.2rem; }
+        .user-info p { font-size: 0.8rem; color: var(--text-secondary); }
+
+        .logout-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .logout-btn:hover {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--card-bg);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb-current {
+            color: var(--text);
+            font-weight: 700;
+            font-size: 1.6rem;
+        }
+
+        .mobile-toggle {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.4rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .content-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .card-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #d97706);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        th, td {
+            padding: 1.2rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        tr {
+            transition: all 0.3s ease;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .badge-info {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--info);
+            border: 1px solid var(--info);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.5rem;
+        }
+
+        .close-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .success-message.show {
+            display: flex;
+        }
+
+        .action-btn {
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .quick-action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .quick-action-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quick-action-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .quick-action-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .quick-action-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+
+        .activity-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(5px);
+        }
+
+        .activity-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .activity-time {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 1rem;
+        }
+
+        .progress-ring {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+        }
+
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .upcoming-event {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 3px solid var(--primary);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .event-date {
+            text-align: center;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            min-width: 70px;
+        }
+
+        .event-day {
+            font-size: 1.8rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .event-month {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .event-details {
+            flex: 1;
+            margin-left: 1.5rem;
+        }
+
+        .event-title {
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .event-time {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .trend-up {
+            color: var(--success);
+        }
+
+        .trend-down {
+            color: var(--danger);
+        }
+
+        .mini-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 40px;
+            margin-top: 1rem;
+        }
+
+        .mini-bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--primary), var(--accent));
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s;
+        }
+
+        .mini-bar:hover {
+            opacity: 0.7;
+        }
+
+        .timetable-grid {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .timetable-slot {
+            display: grid;
+            grid-template-columns: 120px 1fr 1fr 1fr 120px;
+            gap: 1rem;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .time-display {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .timetable-slot {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">🎓</div>
+                <h1 class="logo-text">SaarthiAI</h1>
+            </div>
+        </div>
+
+        <nav class="nav-section">
+            <div class="nav-title">Main Menu</div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a class="nav-link active" onclick="showSection('dashboard')">
+                        <span class="nav-icon">📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="showSection('students')">
+                        <span class="nav-icon">👥</span>
+                        <span>Students</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="showSection('teachers')">
+                        <span class="nav-icon">👨‍🏫</span>
+                        <span>Teachers</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="showSection('courses')">
+                        <span class="nav-icon">📚</span>
+                        <span>Courses</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="showSection('subjects')">
+                        <span class="nav-icon">📖</span>
+                        <span>Subjects</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <nav class="nav-section">
+            <div class="nav-title">Academic</div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a class="nav-link" onclick="showSection('timetable')">
+                        <span class="nav-icon">🗓️</span>
+                        <span>Timetable</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="showSection('attendance')">
+                        <span class="nav-icon">✅</span>
+                        <span>Attendance</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="showSection('notifications')">
+                        <span class="nav-icon">📢</span>
+                        <span>Notifications</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <nav class="nav-section">
+            <div class="nav-title">System</div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a class="nav-link" onclick="showSection('reports')">
+                        <span class="nav-icon">📈</span>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" onclick="showSection('settings')">
+                        <span class="nav-icon">⚙️</span>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="user-section">
+            <div class="user-card">
+                <div class="user-avatar">AD</div>
+                <div class="user-info">
+                    <h4>Admin User</h4>
+                    <p>Super Administrator</p>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="window.location.href='login.html'">
+                <span>🚪</span> Logout
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div>
+                <div class="breadcrumb">
+                    <span>🏠 Home</span>
+                    <span>/</span>
+                    <span id="breadcrumbCurrent" class="breadcrumb-current">Dashboard</span>
+                </div>
+            </div>
+            <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+        </header>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-value">1,234</div>
+                    <div class="stat-label">Total Students</div>
+                    <div class="stat-trend trend-up">
+                        <span>↑ 12%</span>
+                        <span>from last month</span>
+                    </div>
+                    <div class="mini-chart">
+                        <div class="mini-bar" style="height: 60%;"></div>
+                        <div class="mini-bar" style="height: 75%;"></div>
+                        <div class="mini-bar" style="height: 55%;"></div>
+                        <div class="mini-bar" style="height: 85%;"></div>
+                        <div class="mini-bar" style="height: 90%;"></div>
+                        <div class="mini-bar" style="height: 100%;"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👨‍🏫</div>
+                    <div class="stat-value">87</div>
+                    <div class="stat-label">Teachers</div>
+                    <div class="stat-trend trend-up">
+                        <span>↑ 5%</span>
+                        <span>from last month</span>
+                    </div>
+                    <div class="mini-chart">
+                        <div class="mini-bar" style="height: 70%;"></div>
+                        <div class="mini-bar" style="height: 65%;"></div>
+                        <div class="mini-bar" style="height: 80%;"></div>
+                        <div class="mini-bar" style="height: 85%;"></div>
+                        <div class="mini-bar" style="height: 95%;"></div>
+                        <div class="mini-bar" style="height: 100%;"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-value">42</div>
+                    <div class="stat-label">Active Courses</div>
+                    <div class="stat-trend trend-up">
+                        <span>↑ 3</span>
+                        <span>new this semester</span>
+                    </div>
+                    <div class="mini-chart">
+                        <div class="mini-bar" style="height: 50%;"></div>
+                        <div class="mini-bar" style="height: 60%;"></div>
+                        <div class="mini-bar" style="height: 70%;"></div>
+                        <div class="mini-bar" style="height: 75%;"></div>
+                        <div class="mini-bar" style="height: 90%;"></div>
+                        <div class="mini-bar" style="height: 100%;"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value">92.4%</div>
+                    <div class="stat-label">Avg Attendance</div>
+                    <div class="stat-trend trend-down">
+                        <span>↓ 2%</span>
+                        <span>from last week</span>
+                    </div>
+                    <div class="mini-chart">
+                        <div class="mini-bar" style="height: 100%;"></div>
+                        <div class="mini-bar" style="height: 95%;"></div>
+                        <div class="mini-bar" style="height: 90%;"></div>
+                        <div class="mini-bar" style="height: 85%;"></div>
+                        <div class="mini-bar" style="height: 88%;"></div>
+                        <div class="mini-bar" style="height: 92%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Left Column -->
+                <div>
+                    <!-- Attendance Overview -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h2 class="card-title">📊 Weekly Attendance Overview</h2>
+                            <select class="form-select" style="width: auto;">
+                                <option>This Week</option>
+                                <option>Last Week</option>
+                                <option>This Month</option>
+                            </select>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="attendanceChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activities -->
+                    <div class="content-card" style="margin-top: 2rem;">
+                        <div class="card-header">
+                            <h2 class="card-title">🔔 Recent Activities</h2>
+                            <a href="#" class="btn btn-secondary" style="padding: 0.6rem 1rem; font-size: 0.9rem;">View All</a>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon">👥</div>
+                            <div class="activity-content">
+                                <div class="activity-title">New Student Enrolled</div>
+                                <div class="activity-time">Raj Kumar joined Computer Science • 2 hours ago</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: linear-gradient(135deg, var(--warning), #d97706);">⚠️</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Low Attendance Alert</div>
+                                <div class="activity-time">5 students below 75% threshold • 3 hours ago</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: linear-gradient(135deg, var(--success), #059669);">📝</div>
+                            <div class="activity-content">
+                                <div class="activity-title">New Course Added</div>
+                                <div class="activity-time">Advanced Machine Learning • 5 hours ago</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: linear-gradient(135deg, var(--info), #2563eb);">👨‍🏫</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Teacher Assignment Updated</div>
+                                <div class="activity-time">Dr. Patel assigned to Physics Lab • 1 day ago</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: linear-gradient(135deg, var(--accent), var(--danger);">📢</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Notification Sent</div>
+                                <div class="activity-time">Exam schedule notification to all students • 2 days ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div>
+                    <!-- Today's Schedule -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h2 class="card-title">📅 Today's Schedule</h2>
+                        </div>
+                        
+                        <div class="upcoming-event">
+                            <div class="event-date">
+                                <div class="event-day">09</div>
+                                <div class="event-month">NOV</div>
+                            </div>
+                            <div class="event-details">
+                                <div class="event-title">Morning Assembly</div>
+                                <div class="event-time">🕐 08:00 AM - 08:30 AM</div>
+                            </div>
+                        </div>
+
+                        <div class="upcoming-event">
+                            <div class="event-date">
+                                <div class="event-day">09</div>
+                                <div class="event-month">NOV</div>
+                            </div>
+                            <div class="event-details">
+                                <div class="event-title">CS Department Meeting</div>
+                                <div class="event-time">🕐 10:00 AM - 11:00 AM</div>
+                            </div>
+                        </div>
+
+                        <div class="upcoming-event">
+                            <div class="event-date">
+                                <div class="event-day">09</div>
+                                <div class="event-month">NOV</div>
+                            </div>
+                            <div class="event-details">
+                                <div class="event-title">Parent-Teacher Meet</div>
+                                <div class="event-time">🕐 02:00 PM - 04:00 PM</div>
+                            </div>
+                        </div>
+
+                        <div class="upcoming-event">
+                            <div class="event-date">
+                                <div class="event-day">10</div>
+                                <div class="event-month">NOV</div>
+                            </div>
+                            <div class="event-details">
+                                <div class="event-title">Sports Day Preparation</div>
+                                <div class="event-time">🕐 09:00 AM - 12:00 PM</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="content-card" style="margin-top: 2rem;">
+                        <div class="card-header">
+                            <h2 class="card-title">📈 Performance Overview</h2>
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span style="font-weight: 600;">Student Engagement</span>
+                                <span style="color: var(--success); font-weight: 700;">88%</span>
+                            </div>
+                            <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+                                <div style="width: 88%; height: 100%; background: linear-gradient(90deg, var(--success), #059669); border-radius: 10px;"></div>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span style="font-weight: 600;">Assignment Completion</span>
+                                <span style="color: var(--primary); font-weight: 700;">76%</span>
+                            </div>
+                            <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+                                <div style="width: 76%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 10px;"></div>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span style="font-weight: 600;">Teacher Satisfaction</span>
+                                <span style="color: var(--warning); font-weight: 700;">92%</span>
+                            </div>
+                            <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+                                <div style="width: 92%; height: 100%; background: linear-gradient(90deg, var(--warning), #d97706); border-radius: 10px;"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span style="font-weight: 600;">Resource Utilization</span>
+                                <span style="color: var(--info); font-weight: 700;">84%</span>
+                            </div>
+                            <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden;">
+                                <div style="width: 84%; height: 100%; background: linear-gradient(90deg, var(--info), #2563eb); border-radius: 10px;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alerts -->
+                    <div class="content-card" style="margin-top: 2rem;">
+                        <div class="card-header">
+                            <h2 class="card-title">⚠️ Alerts & Warnings</h2>
+                        </div>
+
+                        <div style="padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); border-radius: 12px; margin-bottom: 1rem;">
+                            <div style="font-weight: 700; margin-bottom: 0.3rem; color: var(--danger);">5 Students Low Attendance</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">Students below 75% threshold</div>
+                        </div>
+
+                        <div style="padding: 1rem; background: rgba(245, 158, 11, 0.1); border: 1px solid var(--warning); border-radius: 12px; margin-bottom: 1rem;">
+                            <div style="font-weight: 700; margin-bottom: 0.3rem; color: var(--warning);">3 Pending Approvals</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">Teacher leave requests awaiting</div>
+                        </div>
+
+                        <div style="padding: 1rem; background: rgba(59, 130, 246, 0.1); border: 1px solid var(--info); border-radius: 12px;">
+                            <div style="font-weight: 700; margin-bottom: 0.3rem; color: var(--info);">Exam Week Starting</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);">Mid-term exams begin in 5 days</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">⚡ Quick Actions</h2>
+                </div>
+                <div class="quick-action-grid">
+                    <div class="quick-action-card" onclick="openModal('addStudent')">
+                        <div class="quick-action-icon">➕</div>
+                        <div class="quick-action-title">Add Student</div>
+                    </div>
+                    <div class="quick-action-card" onclick="openModal('addTeacher')">
+                        <div class="quick-action-icon">👨‍🏫</div>
+                        <div class="quick-action-title">Add Teacher</div>
+                    </div>
+                    <div class="quick-action-card" onclick="openModal('addCourse')">
+                        <div class="quick-action-icon">📚</div>
+                        <div class="quick-action-title">Add Course</div>
+                    </div>
+                    <div class="quick-action-card" onclick="openModal('addSubject')">
+                        <div class="quick-action-icon">📖</div>
+                        <div class="quick-action-title">Add Subject</div>
+                    </div>
+                    <div class="quick-action-card" onclick="openModal('createTimetable')">
+                        <div class="quick-action-icon">🗓️</div>
+                        <div class="quick-action-title">Create Timetable</div>
+                    </div>
+                    <div class="quick-action-card" onclick="showSection('attendance')">
+                        <div class="quick-action-icon">✅</div>
+                        <div class="quick-action-title">Mark Attendance</div>
+                    </div>
+                    <div class="quick-action-card" onclick="showSection('notifications')">
+                        <div class="quick-action-icon">📢</div>
+                        <div class="quick-action-title">Send Notification</div>
+                    </div>
+                    <div class="quick-action-card" onclick="showSection('reports')">
+                        <div class="quick-action-icon">📊</div>
+                        <div class="quick-action-title">Generate Report</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Students Section -->
+        <section id="students" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">Student Management</h2>
+                    <button class="btn btn-primary" onclick="openModal('addStudent')">
+                        <span>➕</span> Add Student
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Course</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#S001</td>
+                                <td>Raj Kumar</td>
+                                <td>raj@example.com</td>
+                                <td>Computer Science</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>
+                                    <button class="action-btn btn-secondary" onclick="editStudent('S001', 'Raj Kumar', 'raj@example.com', 'Computer Science')">Edit</button>
+                                    <button class="action-btn btn-danger" onclick="deleteStudent('S001', 'Raj Kumar')">Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#S002</td>
+                                <td>Priya Sharma</td>
+                                <td>priya@example.com</td>
+                                <td>Mathematics</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>
+                                    <button class="action-btn btn-secondary" onclick="editStudent('S002', 'Priya Sharma', 'priya@example.com', 'Mathematics')">Edit</button>
+                                    <button class="action-btn btn-danger" onclick="deleteStudent('S002', 'Priya Sharma')">Delete</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Teachers Section -->
+        <section id="teachers" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">Teacher Management</h2>
+                    <button class="btn btn-primary" onclick="openModal('addTeacher')">
+                        <span>➕</span> Add Teacher
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Subject</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#T001</td>
+                                <td>Dr. Amit Patel</td>
+                                <td>amit@example.com</td>
+                                <td>Physics</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>
+                                    <button class="action-btn btn-secondary" onclick="editTeacher('T001', 'Dr. Amit Patel', 'amit@example.com', 'Physics')">Edit</button>
+                                    <button class="action-btn btn-danger" onclick="deleteTeacher('T001', 'Dr. Amit Patel')">Delete</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Courses Section -->
+        <section id="courses" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">Course Management</h2>
+                    <button class="btn btn-primary" onclick="openModal('addCourse')">
+                        <span>➕</span> Add Course
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Course ID</th>
+                                <th>Course Name</th>
+                                <th>Duration</th>
+                                <th>Students</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#C001</td>
+                                <td>Computer Science</td>
+                                <td>4 Years</td>
+                                <td>450</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>
+                                    <button class="action-btn btn-secondary" onclick="editCourse('C001', 'Computer Science', '4 Years')">Edit</button>
+                                    <button class="action-btn btn-danger" onclick="deleteCourse('C001', 'Computer Science')">Delete</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW: Subjects Section -->
+        <section id="subjects" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">Subject Management</h2>
+                    <button class="btn btn-primary" onclick="openModal('addSubject')">
+                        <span>➕</span> Add Subject
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Subject ID</th>
+                                <th>Subject Name</th>
+                                <th>Subject Code</th>
+                                <th>Credits</th>
+                                <th>Teacher</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="subjectsTableBody">
+                            <tr>
+                                <td>#SUB001</td>
+                                <td>Data Structures</td>
+                                <td>CS201</td>
+                                <td>4</td>
+                                <td>Dr. Amit Patel</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>
+                                    <button class="action-btn btn-secondary" onclick="editSubject('SUB001', 'Data Structures', 'CS201', '4', 'Dr. Amit Patel')">Edit</button>
+                                    <button class="action-btn btn-danger" onclick="deleteSubject('SUB001', 'Data Structures')">Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#SUB002</td>
+                                <td>Calculus I</td>
+                                <td>MATH101</td>
+                                <td>3</td>
+                                <td>Prof. Sharma</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>
+                                    <button class="action-btn btn-secondary" onclick="editSubject('SUB002', 'Calculus I', 'MATH101', '3', 'Prof. Sharma')">Edit</button>
+                                    <button class="action-btn btn-danger" onclick="deleteSubject('SUB002', 'Calculus I')">Delete</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#SUB003</td>
+                                <td>Physics Lab</td>
+                                <td>PHY102</td>
+                                <td>2</td>
+                                <td>Dr. Verma</td>
+                                <td><span class="badge badge-success">Active</span></td>
+                                <td>
+                                    <button class="action-btn btn-secondary" onclick="editSubject('SUB003', 'Physics Lab', 'PHY102', '2', 'Dr. Verma')">Edit</button>
+                                    <button class="action-btn btn-danger" onclick="deleteSubject('SUB003', 'Physics Lab')">Delete</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Timetable Section -->
+        <section id="timetable" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">Timetable Management</h2>
+                    <button class="btn btn-primary" onclick="openModal('createTimetable')">
+                        <span>➕</span> Create Timetable
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Select Class/Course</label>
+                    <select class="form-select" id="timetableClassSelect">
+                        <option value="cs1">Computer Science - Year 1</option>
+                        <option value="cs2">Computer Science - Year 2</option>
+                        <option value="math1">Mathematics - Year 1</option>
+                        <option value="phy1">Physics - Year 1</option>
+                    </select>
+                </div>
+
+                <div class="table-container" style="margin-top: 2rem;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Monday</th>
+                                <th>Tuesday</th>
+                                <th>Wednesday</th>
+                                <th>Thursday</th>
+                                <th>Friday</th>
+                            </tr>
+                        </thead>
+                        <tbody id="timetableTableBody">
+                            <tr>
+                                <td class="time-display">09:00 - 10:00</td>
+                                <td>Physics<br><small style="color: var(--text-secondary);">Room 101</small></td>
+                                <td>Mathematics<br><small style="color: var(--text-secondary);">Room 202</small></td>
+                                <td>Computer Science<br><small style="color: var(--text-secondary);">Lab A</small></td>
+                                <td>Chemistry<br><small style="color: var(--text-secondary);">Lab B</small></td>
+                                <td>English<br><small style="color: var(--text-secondary);">Room 105</small></td>
+                            </tr>
+                            <tr>
+                                <td class="time-display">10:00 - 11:00</td>
+                                <td>Mathematics<br><small style="color: var(--text-secondary);">Room 202</small></td>
+                                <td>Computer Science<br><small style="color: var(--text-secondary);">Lab A</small></td>
+                                <td>Physics<br><small style="color: var(--text-secondary);">Room 101</small></td>
+                                <td>English<br><small style="color: var(--text-secondary);">Room 105</small></td>
+                                <td>Chemistry<br><small style="color: var(--text-secondary);">Lab B</small></td>
+                            </tr>
+                            <tr style="background: rgba(245, 158, 11, 0.1);">
+                                <td class="time-display" colspan="6" style="text-align: center; font-weight: 700;">
+                                    ☕ Break (11:00 - 11:30)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="time-display">11:30 - 12:30</td>
+                                <td>Computer Science<br><small style="color: var(--text-secondary);">Lab A</small></td>
+                                <td>Physics<br><small style="color: var(--text-secondary);">Room 101</small></td>
+                                <td>Mathematics<br><small style="color: var(--text-secondary);">Room 202</small></td>
+                                <td>Computer Science<br><small style="color: var(--text-secondary);">Lab A</small></td>
+                                <td>Physics<br><small style="color: var(--text-secondary);">Room 101</small></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Attendance Section -->
+        <section id="attendance" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">Attendance Management</h2>
+                    <button class="btn btn-warning" onclick="sendLowAttendanceAlerts()">
+                        📧 Send Alerts to All Low Attendance Students
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Select Class</label>
+                    <select class="form-select" id="classSelect">
+                        <option>Computer Science - Year 1</option>
+                        <option>Computer Science - Year 2</option>
+                        <option>Mathematics - Year 1</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Date</label>
+                    <input type="date" class="form-input" id="attendanceDate">
+                </div>
+
+                <button class="btn btn-success" onclick="markAttendance()">
+                    ✅ Mark Attendance
+                </button>
+
+                <div class="success-message" id="lowAttendanceSuccess">
+                    <span>✅</span>
+                    <span id="lowAttendanceSuccessText">Alerts sent successfully!</span>
+                </div>
+
+                <div class="table-container" style="margin-top: 2rem;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Attendance %</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#S001</td>
+                                <td>Raj Kumar</td>
+                                <td>92%</td>
+                                <td><span class="badge badge-success">Good</span></td>
+                                <td>
+                                    <button class="action-btn btn-secondary">View Details</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>#S002</td>
+                                <td>Priya Sharma</td>
+                                <td>68%</td>
+                                <td><span class="badge badge-warning">Low</span></td>
+                                <td>
+                                    <button class="action-btn btn-secondary">View Details</button>
+                                    <button class="action-btn btn-warning" onclick="sendIndividualAlert('S002', 'Priya Sharma')">📧 Send Alert</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notifications Section -->
+        <section id="notifications" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">Send Notifications</h2>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Target Audience</label>
+                    <select class="form-select" id="notificationTarget">
+                        <option value="all">All Users</option>
+                        <option value="students">All Students</option>
+                        <option value="teachers">All Teachers</option>
+                        <option value="specific">Specific Class</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Subject</label>
+                    <input type="text" class="form-input" id="notificationSubject" placeholder="Enter notification subject">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Message</label>
+                    <textarea class="form-textarea" id="notificationMessage" placeholder="Enter your message here..."></textarea>
+                </div>
+
+                <button class="btn btn-primary" onclick="sendNotification()">
+                    📢 Send Notification
+                </button>
+
+                <div class="success-message" id="notificationSuccess">
+                    <span>✅</span>
+                    <span>Notification sent successfully!</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reports Section -->
+        <section id="reports" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">Generate Reports</h2>
+                </div>
+
+                <div class="quick-action-grid">
+                    <div class="quick-action-card" onclick="generateReport('attendance')">
+                        <div class="quick-action-icon">📊</div>
+                        <div class="quick-action-title">Attendance Report</div>
+                    </div>
+                    <div class="quick-action-card" onclick="generateReport('performance')">
+                        <div class="quick-action-icon">📈</div>
+                        <div class="quick-action-title">Performance Report</div>
+                    </div>
+                    <div class="quick-action-card" onclick="generateReport('fees')">
+                        <div class="quick-action-icon">💰</div>
+                        <div class="quick-action-title">Fees Report</div>
+                    </div>
+                    <div class="quick-action-card" onclick="generateReport('custom')">
+                        <div class="quick-action-icon">⚙️</div>
+                        <div class="quick-action-title">Custom Report</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="settings" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">System Settings</h2>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Institution Name</label>
+                    <input type="text" class="form-input" id="institutionName" value="SaarthiAI School">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Contact Email</label>
+                    <input type="email" class="form-input" id="contactEmail" value="admin@saarthi.ai">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-input" id="phoneNumber" value="+91 9876543210">
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-success" onclick="saveSettings()">
+                        💾 Save Settings
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetSettings()">
+                        🔄 Reset to Default
+                    </button>
+                </div>
+
+                <div class="success-message" id="settingsSuccess">
+                    <span>✅</span>
+                    <span>Settings saved successfully!</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Universal Add Modal -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Add New</h3>
+                <button class="close-btn" onclick="closeModal('addModal')">×</button>
+            </div>
+            <form id="addForm">
+                <div id="formFields"></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    Submit
+                </button>
+                <div class="success-message" id="modalSuccess">
+                    <span>✅</span>
+                    <span id="successText">Success!</span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Particle animation
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        for (let i = 0; i < 50; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                radius: Math.random() * 2
+            });
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(102, 126, 234, 0.5)';
+            
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+            });
+            
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Initialize Attendance Chart
+        const attendanceCtx = document.getElementById('attendanceChart');
+        if (attendanceCtx) {
+            new Chart(attendanceCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                    datasets: [{
+                        label: 'Attendance %',
+                        data: [92, 88, 94, 89, 91, 87],
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: 'rgba(102, 126, 234, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 80,
+                            max: 100,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Navigation
+        function showSection(sectionName) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            
+            document.getElementById(sectionName).classList.add('active');
+            event.target.closest('.nav-link').classList.add('active');
+            
+            const titles = {
+                dashboard: 'Dashboard',
+                students: 'Students',
+                teachers: 'Teachers',
+                courses: 'Courses',
+                subjects: 'Subjects',
+                timetable: 'Timetable',
+                attendance: 'Attendance',
+                notifications: 'Notifications',
+                reports: 'Reports',
+                settings: 'Settings'
+            };
+            
+            document.getElementById('breadcrumbCurrent').textContent = titles[sectionName];
+            
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('active');
+            }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        function openModal(type) {
+            const modal = document.getElementById('addModal');
+            const formFields = document.getElementById('formFields');
+            const form = document.getElementById('addForm');
+            
+            // Clear any previous edit mode
+            delete form.dataset.editId;
+            
+            form.dataset.type = type;
+            
+            // Define form fields for each type
+            const formConfigs = {
+                addStudent: {
+                    title: '➕ Add Student',
+                    fields: [
+                        { label: 'Full Name', id: 'fullName', type: 'text', required: true },
+                        { label: 'Email', id: 'email', type: 'email', required: true },
+                        { label: 'Phone', id: 'phone', type: 'tel', required: true },
+                        { label: 'Course', id: 'course', type: 'select', options: ['Computer Science', 'Mathematics', 'Physics'], required: true }
+                    ]
+                },
+                addTeacher: {
+                    title: '➕ Add Teacher',
+                    fields: [
+                        { label: 'Full Name', id: 'fullName', type: 'text', required: true },
+                        { label: 'Email', id: 'email', type: 'email', required: true },
+                        { label: 'Phone', id: 'phone', type: 'tel', required: true },
+                        { label: 'Subject', id: 'subject', type: 'text', required: true }
+                    ]
+                },
+                addCourse: {
+                    title: '➕ Add Course',
+                    fields: [
+                        { label: 'Course Name', id: 'courseName', type: 'text', required: true },
+                        { label: 'Course Code', id: 'courseCode', type: 'text', required: true },
+                        { label: 'Duration (Years)', id: 'duration', type: 'number', required: true },
+                        { label: 'Description', id: 'description', type: 'textarea', required: false }
+                    ]
+                },
+                addSubject: {
+                    title: '➕ Add Subject',
+                    fields: [
+                        { label: 'Subject Name', id: 'subjectName', type: 'text', required: true },
+                        { label: 'Subject Code', id: 'subjectCode', type: 'text', required: true },
+                        { label: 'Credits', id: 'credits', type: 'number', required: true },
+                        { label: 'Assign Teacher', id: 'teacher', type: 'select', options: ['Dr. Amit Patel', 'Prof. Sharma', 'Dr. Verma'], required: true },
+                        { label: 'Course', id: 'course', type: 'select', options: ['Computer Science', 'Mathematics', 'Physics'], required: true }
+                    ]
+                },
+                createTimetable: {
+                    title: '🗓️ Create Timetable',
+                    fields: [
+                        { label: 'Class/Course', id: 'timetableClass', type: 'select', options: ['Computer Science - Year 1', 'Computer Science - Year 2', 'Mathematics - Year 1'], required: true },
+                        { label: 'Day', id: 'day', type: 'select', options: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], required: true },
+                        { label: 'Time Slot', id: 'timeSlot', type: 'select', options: ['09:00 - 10:00', '10:00 - 11:00', '11:30 - 12:30', '12:30 - 13:30'], required: true },
+                        { label: 'Subject', id: 'subject', type: 'select', options: ['Physics', 'Mathematics', 'Computer Science', 'Chemistry', 'English'], required: true },
+                        { label: 'Teacher', id: 'teacher', type: 'select', options: ['Dr. Amit Patel', 'Prof. Sharma', 'Dr. Verma'], required: true },
+                        { label: 'Room/Lab', id: 'room', type: 'text', required: true }
+                    ]
+                }
+            };
+
+            const config = formConfigs[type];
+            document.getElementById('modalTitle').textContent = config.title;
+            
+            // Build form fields
+            formFields.innerHTML = '';
+            config.fields.forEach(field => {
+                const formGroup = document.createElement('div');
+                formGroup.className = 'form-group';
+                
+                const label = document.createElement('label');
+                label.className = 'form-label';
+                label.textContent = field.label;
+                formGroup.appendChild(label);
+                
+                let input;
+                if (field.type === 'select') {
+                    input = document.createElement('select');
+                    input.className = 'form-select';
+                    field.options.forEach(opt => {
+                        const option = document.createElement('option');
+                        option.value = opt;
+                        option.textContent = opt;
+                        input.appendChild(option);
+                    });
+                } else if (field.type === 'textarea') {
+                    input = document.createElement('textarea');
+                    input.className = 'form-textarea';
+                } else {
+                    input = document.createElement('input');
+                    input.type = field.type;
+                    input.className = 'form-input';
+                }
+                
+                input.id = field.id;
+                input.required = field.required;
+                formGroup.appendChild(input);
+                formFields.appendChild(formGroup);
+            });
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            document.getElementById('modalSuccess').classList.remove('show');
+            document.getElementById('addForm').reset();
+        }
+
+        document.getElementById('addForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formType = this.dataset.type;
+            const formData = {};
+            
+            // Collect form data
+            const inputs = this.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                formData[input.id] = input.value;
+            });
+            
+            // Check if this is an edit operation
+            const isEdit = this.dataset.editId ? true : false;
+            const editId = this.dataset.editId;
+            
+            // Determine endpoint
+            const endpoints = {
+                addStudent: isEdit ? `/api/edit-student/${editId}` : '/api/add-student',
+                addTeacher: isEdit ? `/api/edit-teacher/${editId}` : '/api/add-teacher',
+                addCourse: isEdit ? `/api/edit-course/${editId}` : '/api/add-course',
+                addSubject: isEdit ? `/api/edit-subject/${editId}` : '/api/add-subject',
+                createTimetable: '/api/create-timetable'
+            };
+            
+            const endpoint = endpoints[formType];
+            const method = isEdit ? 'PUT' : 'POST';
+            
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+            
+            // Real API call with better error handling
+            fetch(endpoint, {
+                method: method,
+                headers: { 
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                // Check if response is ok
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.message || `HTTP error! status: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('successText').textContent = data.message || (isEdit ? 'Updated successfully!' : 'Added successfully!');
+                    document.getElementById('modalSuccess').classList.add('show');
+                    
+                    setTimeout(() => {
+                        closeModal('addModal');
+                        location.reload();
+                    }, 1500);
+                } else {
+                    throw new Error(data.message || 'Operation failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error details:', error);
+                
+                // Show detailed error message
+                let errorMessage = error.message;
+                
+                if (errorMessage.includes('database is locked')) {
+                    errorMessage = '⚠️ Database is currently locked. This usually happens when:\n\n' +
+                                 '1. Another operation is in progress\n' +
+                                 '2. Database connection timeout\n' +
+                                 '3. SQLite file permissions issue\n\n' +
+                                 'Solutions:\n' +
+                                 '- Wait a moment and try again\n' +
+                                 '- Check if another admin is making changes\n' +
+                                 '- Contact your system administrator\n' +
+                                 '- Consider upgrading to MySQL/PostgreSQL for better concurrency';
+                } else if (errorMessage.includes('Failed to fetch')) {
+                    errorMessage = '⚠️ Cannot connect to server!\n\n' +
+                                 'Please check:\n' +
+                                 '- Is the backend server running?\n' +
+                                 '- Is the API endpoint correct?\n' +
+                                 '- Check your internet connection';
+                } else if (errorMessage.includes('duplicate') || errorMessage.includes('unique')) {
+                    errorMessage = '⚠️ This record already exists!\n\n' +
+                                 'Email or ID might be duplicate.';
+                }
+                
+                alert('Error: ' + errorMessage);
+                
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            });
+        });
+
+        function markAttendance() {
+            const classVal = document.getElementById('classSelect').value;
+            const date = document.getElementById('attendanceDate').value;
+            
+            if (!date) {
+                alert('Please select a date');
+                return;
+            }
+            
+            alert('Attendance marking feature ready! Selected: ' + classVal + ' on ' + date);
+        }
+
+        function sendNotification() {
+            const target = document.getElementById('notificationTarget').value;
+            const subject = document.getElementById('notificationSubject').value;
+            const message = document.getElementById('notificationMessage').value;
+            
+            if (!subject || !message) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            fetch('/api/send-notification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ target, subject, message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('notificationSuccess').classList.add('show');
+                    alert(data.message);
+                    
+                    setTimeout(() => {
+                        document.getElementById('notificationSuccess').classList.remove('show');
+                        document.getElementById('notificationSubject').value = '';
+                        document.getElementById('notificationMessage').value = '';
+                    }, 3000);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+                console.error('Error:', error);
+            });
+        }
+
+        function sendLowAttendanceAlerts() {
+            if (!confirm('Send email alerts to all students with low attendance?')) {
+                return;
+            }
+            
+            const btn = event.target;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading-spinner"></span> Sending...';
+            
+            fetch('/api/check-low-attendance', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('lowAttendanceSuccessText').textContent = data.message;
+                    document.getElementById('lowAttendanceSuccess').classList.add('show');
+                    
+                    setTimeout(() => {
+                        document.getElementById('lowAttendanceSuccess').classList.remove('show');
+                    }, 5000);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '📧 Send Alerts to All Low Attendance Students';
+            });
+        }
+
+        function sendIndividualAlert(studentId, studentName) {
+            if (!confirm(`Send attendance alert to ${studentName}?`)) {
+                return;
+            }
+            
+            const btn = event.target;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading-spinner"></span>';
+            
+            fetch('/api/send-low-attendance-alert', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ student_id: studentId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '📧 Send Alert';
+            });
+        }
+
+        function saveSettings() {
+            document.getElementById('settingsSuccess').classList.add('show');
+            setTimeout(() => {
+                document.getElementById('settingsSuccess').classList.remove('show');
+            }, 3000);
+        }
+
+        function resetSettings() {
+            document.getElementById('institutionName').value = 'SaarthiAI School';
+            document.getElementById('contactEmail').value = 'admin@saarthi.ai';
+            document.getElementById('phoneNumber').value = '+91 9876543210';
+        }
+
+        function generateReport(type) {
+            const types = {
+                attendance: 'Attendance',
+                performance: 'Performance',
+                fees: 'Fees',
+                custom: 'Custom'
+            };
+            alert(types[type] + ' Report generated! Ready to download.');
+        }
+
+        // Edit and Delete Functions for Students
+        function editStudent(id, name, email, course) {
+            // Open modal in edit mode
+            openModal('addStudent');
+            
+            // Wait for modal to open, then fill the fields
+            setTimeout(() => {
+                const form = document.getElementById('addForm');
+                
+                // Set form to edit mode
+                form.dataset.editId = id;
+                
+                // Update modal title
+                document.getElementById('modalTitle').textContent = '✏️ Edit Student';
+                
+                // Fill form fields
+                document.getElementById('fullName').value = name;
+                document.getElementById('email').value = email;
+                document.getElementById('phone').value = '+91 9876543210'; // You might want to pass this as parameter
+                
+                // Find and select the course
+                const courseSelect = document.querySelector('#formFields select');
+                if (courseSelect) {
+                    for (let i = 0; i < courseSelect.options.length; i++) {
+                        if (courseSelect.options[i].value === course) {
+                            courseSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+                
+                // Change submit button text
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.innerHTML = '💾 Update Student';
+            }, 100);
+        }
+
+        function deleteStudent(id, name) {
+            if (confirm(`Are you sure you want to delete ${name}?\n\nThis action cannot be undone.`)) {
+                // Show loading state
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loading-spinner"></span>';
+                
+                // Real API call for delete
+                fetch(`/api/delete-student/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.message || 'Delete failed');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert(`Student ${name} has been deleted successfully!`);
+                        
+                        // Remove the row from table with animation
+                        const row = btn.closest('tr');
+                        row.style.transition = 'all 0.3s ease';
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(-20px)';
+                        
+                        setTimeout(() => {
+                            row.remove();
+                        }, 300);
+                    } else {
+                        throw new Error(data.message || 'Delete failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Delete error:', error);
+                    
+                    let errorMessage = error.message;
+                    if (errorMessage.includes('database is locked')) {
+                        errorMessage = '⚠️ Database is locked. Please wait a moment and try again.\n\nIf this persists, contact your administrator.';
+                    }
+                    
+                    alert('Error: ' + errorMessage);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
+            }
+        }
+
+        // Edit and Delete Functions for Teachers
+        function editTeacher(id, name, email, subject) {
+            openModal('addTeacher');
+            
+            setTimeout(() => {
+                const form = document.getElementById('addForm');
+                form.dataset.editId = id;
+                
+                document.getElementById('modalTitle').textContent = '✏️ Edit Teacher';
+                document.getElementById('fullName').value = name;
+                document.getElementById('email').value = email;
+                document.getElementById('phone').value = '+91 9876543210';
+                
+                const subjectInput = document.getElementById('subject');
+                if (subjectInput) {
+                    subjectInput.value = subject;
+                }
+                
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.innerHTML = '💾 Update Teacher';
+            }, 100);
+        }
+
+        function deleteTeacher(id, name) {
+            if (confirm(`Are you sure you want to delete ${name}?\n\nThis will also remove their teaching assignments.`)) {
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loading-spinner"></span>';
+                
+                fetch(`/api/delete-teacher/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.message || 'Delete failed');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert(`Teacher ${name} has been deleted successfully!`);
+                        const row = btn.closest('tr');
+                        row.style.transition = 'all 0.3s ease';
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(-20px)';
+                        setTimeout(() => row.remove(), 300);
+                    } else {
+                        throw new Error(data.message || 'Delete failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Delete error:', error);
+                    let errorMessage = error.message;
+                    if (errorMessage.includes('database is locked')) {
+                        errorMessage = '⚠️ Database is locked. Please wait and try again.';
+                    }
+                    alert('Error: ' + errorMessage);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
+            }
+        }
+
+        // Edit and Delete Functions for Courses
+        function editCourse(id, name, duration) {
+            openModal('addCourse');
+            
+            setTimeout(() => {
+                const form = document.getElementById('addForm');
+                form.dataset.editId = id;
+                
+                document.getElementById('modalTitle').textContent = '✏️ Edit Course';
+                document.getElementById('courseName').value = name;
+                document.getElementById('courseCode').value = id;
+                
+                // Extract years from duration string (e.g., "4 Years" -> "4")
+                const years = duration.split(' ')[0];
+                const durationInput = document.getElementById('duration');
+                if (durationInput) {
+                    durationInput.value = years;
+                }
+                
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.innerHTML = '💾 Update Course';
+            }, 100);
+        }
+
+        function deleteCourse(id, name) {
+            if (confirm(`Are you sure you want to delete the course "${name}"?\n\nThis will affect all students enrolled in this course.`)) {
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loading-spinner"></span>';
+                
+                fetch(`/api/delete-course/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.message || 'Delete failed');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert(`Course "${name}" has been deleted successfully!`);
+                        const row = btn.closest('tr');
+                        row.style.transition = 'all 0.3s ease';
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(-20px)';
+                        setTimeout(() => row.remove(), 300);
+                    } else {
+                        throw new Error(data.message || 'Delete failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Delete error:', error);
+                    let errorMessage = error.message;
+                    if (errorMessage.includes('database is locked')) {
+                        errorMessage = '⚠️ Database is locked. Please wait and try again.';
+                    }
+                    alert('Error: ' + errorMessage);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
+            }
+        }
+
+        // Edit and Delete Functions for Subjects
+        function editSubject(id, name, code, credits, teacher) {
+            openModal('addSubject');
+            
+            setTimeout(() => {
+                const form = document.getElementById('addForm');
+                form.dataset.editId = id;
+                
+                document.getElementById('modalTitle').textContent = '✏️ Edit Subject';
+                document.getElementById('subjectName').value = name;
+                document.getElementById('subjectCode').value = code;
+                document.getElementById('credits').value = credits;
+                
+                // Find and select the teacher
+                const teacherSelect = document.getElementById('teacher');
+                if (teacherSelect) {
+                    for (let i = 0; i < teacherSelect.options.length; i++) {
+                        if (teacherSelect.options[i].value === teacher) {
+                            teacherSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+                
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.innerHTML = '💾 Update Subject';
+            }, 100);
+        }
+
+        function deleteSubject(id, name) {
+            if (confirm(`Are you sure you want to delete the subject "${name}"?\n\nThis will remove it from all timetables.`)) {
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loading-spinner"></span>';
+                
+                fetch(`/api/delete-subject/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw new Error(err.message || 'Delete failed');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert(`Subject "${name}" has been deleted successfully!`);
+                        const row = btn.closest('tr');
+                        row.style.transition = 'all 0.3s ease';
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(-20px)';
+                        setTimeout(() => row.remove(), 300);
+                    } else {
+                        throw new Error(data.message || 'Delete failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Delete error:', error);
+                    let errorMessage = error.message;
+                    if (errorMessage.includes('database is locked')) {
+                        errorMessage = '⚠️ Database is locked. Please wait and try again.';
+                    }
+                    alert('Error: ' + errorMessage);
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
+            }
+        }
+
+        // Close modal on outside click
+        document.getElementById('addModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal('addModal');
+            }
+        });
+
+        // Mobile sidebar close on outside click
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.mobile-toggle');
+            
+            if (window.innerWidth <= 768 && 
+                sidebar.classList.contains('active') && 
+                !sidebar.contains(e.target) && 
+                !toggle.contains(e.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        // Set today's date for attendance
+        document.getElementById('attendanceDate').valueAsDate = new Date();
+    </script>
+</body>
+</html>

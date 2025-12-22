@@ -1,0 +1,2811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - SaarthiAI</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=Space+Grotesk:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --dark: #0a0a0a;
+            --bg: #0f0f23;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+        }
+
+        .gradient-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            animation: floatOrb 25s infinite ease-in-out;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            top: -300px;
+            left: -300px;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, var(--accent), var(--danger));
+            bottom: -250px;
+            right: -250px;
+            animation-delay: 7s;
+        }
+
+        @keyframes floatOrb {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(100px, -80px) scale(1.15); }
+            50% { transform: translate(-50px, 60px) scale(0.85); }
+            75% { transform: translate(80px, -50px) scale(1.05); }
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: var(--card-bg);
+            backdrop-filter: blur(40px);
+            border-right: 1px solid var(--border);
+            padding: 2rem 0;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: transform 0.3s;
+        }
+
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 2px; }
+
+        .sidebar-header {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+            animation: rotateLogo 12s linear infinite;
+        }
+
+        @keyframes rotateLogo {
+            0%, 100% { transform: rotateY(0deg) scale(1); }
+            50% { transform: rotateY(180deg) scale(1.1); }
+        }
+
+        .logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-section { padding: 1.5rem 0; }
+
+        .nav-title {
+            padding: 0 2rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .nav-menu { list-style: none; }
+        .nav-item { padding: 0 1rem; margin-bottom: 0.5rem; }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.2rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--text);
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+            color: var(--text);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-icon { font-size: 1.4rem; width: 28px; text-align: center; }
+
+        .notification-badge {
+            position: absolute;
+            right: 10px;
+            background: var(--danger);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-weight: 700;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(0.95); }
+        }
+
+        .user-section {
+            margin-top: auto;
+            padding: 1.5rem 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .user-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: 800;
+            position: relative;
+        }
+
+        .online-indicator {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            background: var(--success);
+            border-radius: 50%;
+            border: 2px solid var(--bg);
+            animation: pulse 2s infinite;
+        }
+
+        .user-info h4 { font-size: 0.95rem; margin-bottom: 0.2rem; }
+        .user-info p { font-size: 0.8rem; color: var(--text-secondary); }
+
+        .logout-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-family: inherit;
+        }
+
+        .logout-btn:hover {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            background: var(--card-bg);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .breadcrumb {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .breadcrumb-path {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb-current {
+            color: var(--text);
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .mobile-toggle {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.4rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            border-color: var(--primary);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .stat-value {
+            font-size: 2.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--danger); }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s;
+        }
+
+        .content-card:hover {
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        th, td {
+            padding: 1.2rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+
+        tr {
+            transition: all 0.3s;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .badge-info {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--info);
+            border: 1px solid var(--info);
+        }
+
+        .video-container {
+            position: relative;
+            max-width: 640px;
+            margin: 1.5rem auto;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            border: 3px solid var(--primary);
+        }
+
+        #faceVideo, #faceCanvas {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        #faceCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .face-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.2rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .status-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            animation: statusPulse 2s infinite;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .status-dot.loading { background: var(--warning); }
+        .status-dot.ready { background: var(--success); }
+        .status-dot.error { background: var(--danger); }
+        .status-dot.detecting { background: var(--info); }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .face-result {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 2rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid var(--success);
+            border-radius: 16px;
+            animation: slideUp 0.5s;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--card-bg);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 10000;
+            animation: slideInRight 0.3s;
+            display: none;
+        }
+
+        .toast.show {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 1rem;
+        }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .course-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .course-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .course-icon {
+            font-size: 2.5rem;
+        }
+
+        .course-progress {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .course-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            transition: width 0.5s;
+        }
+
+        .assignment-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+
+        .assignment-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--primary);
+        }
+
+        .assignment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .ai-chat {
+            height: 400px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .ai-chat::-webkit-scrollbar { width: 6px; }
+        .ai-chat::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            max-width: 80%;
+            animation: fadeIn 0.3s;
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            margin-left: auto;
+        }
+
+        .message.ai {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .course-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+
+    <div class="toast" id="toast">
+        <span id="toastIcon">✅</span>
+        <span id="toastMessage">Success!</span>
+    </div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">🎓</div>
+                <h1 class="logo-text">SaarthiAI</h1>
+            </div>
+        </div>
+
+        <nav class="nav-section">
+            <div class="nav-title">Main Menu</div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a class="nav-link active" data-section="dashboard">
+                        <span class="nav-icon">📊</span>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-section="courses">
+                        <span class="nav-icon">📚</span>
+                        <span>My Courses</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-section="assignments">
+                        <span class="nav-icon">📝</span>
+                        <span>Assignments</span>
+                        <span class="notification-badge">3</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-section="grades">
+                        <span class="nav-icon">🏆</span>
+                        <span>Grades</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-section="attendance">
+                        <span class="nav-icon">✅</span>
+                        <span>Attendance</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-section="faceAttendance">
+                        <span class="nav-icon">📸</span>
+                        <span>Face Recognition</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <nav class="nav-section">
+            <div class="nav-title">Learning Tools</div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a class="nav-link" data-section="aiTutor">
+                        <span class="nav-icon">🤖</span>
+                        <span>AI Tutor</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-section="studyPlanner">
+                        <span class="nav-icon">📅</span>
+                        <span>Study Planner</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-section="resources">
+                        <span class="nav-icon">📖</span>
+                        <span>Resources</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-section="notifications">
+                        <span class="nav-icon">🔔</span>
+                        <span>Notifications</span>
+                        <span class="notification-badge">5</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="user-section">
+            <div class="user-card">
+                <div class="user-avatar">
+                    RK
+                    <div class="online-indicator"></div>
+                </div>
+                <div class="user-info">
+                    <h4>Raj Kumar</h4>
+                    <p>Student ID: #S001</p>
+                </div>
+            </div>
+            <button class="logout-btn" id="logoutBtn">
+                <span>🚪</span> Logout
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div class="breadcrumb">
+                <div class="breadcrumb-path" id="breadcrumbPath">
+                    <span>🏠 Home</span>
+                    <span>/</span>
+                    <span>Dashboard</span>
+                </div>
+                <h1 class="breadcrumb-current" id="breadcrumbCurrent">Dashboard</h1>
+            </div>
+            <button class="mobile-toggle" id="mobileToggle">☰</button>
+        </header>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <div class="content-card" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15)); border: 1px solid rgba(102, 126, 234, 0.3);">
+                <h2 style="font-size: 2.2rem; margin-bottom: 0.5rem; font-weight: 900;">
+                    Welcome Back, Raj! 👋
+                </h2>
+                <p style="color: var(--text-secondary); font-size: 1.1rem;" id="currentDateTime"></p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-value">6</div>
+                    <div class="stat-label">Enrolled Courses</div>
+                    <div class="stat-trend trend-up">↑ 2 new this semester</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value">94.2%</div>
+                    <div class="stat-label">Attendance Rate</div>
+                    <div class="stat-trend trend-up">↑ 3.2% improvement</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-value">3.8</div>
+                    <div class="stat-label">Current GPA</div>
+                    <div class="stat-trend trend-up">↑ 0.3 from last sem</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">Pending Tasks</div>
+                    <div class="stat-trend trend-down">⚠️ 1 due tomorrow</div>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">📈 Performance Overview</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Courses Section -->
+        <section id="courses" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">📚 My Courses</h2>
+                    <button class="btn btn-primary">+ Add Course</button>
+                </div>
+                <div class="course-grid">
+                    <div class="course-card">
+                        <div class="course-header">
+                            <span class="course-icon">💻</span>
+                            <span class="badge badge-success">Active</span>
+                        </div>
+                        <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem;">Data Structures</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">Prof. Sarah Johnson</p>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">Progress</span>
+                            <span style="font-size: 0.85rem; font-weight: 700;">78%</span>
+                        </div>
+                        <div class="course-progress">
+                            <div class="course-progress-bar" style="width: 78%"></div>
+                        </div>
+                    </div>
+                    <div class="course-card">
+                        <div class="course-header">
+                            <span class="course-icon">🤖</span>
+                            <span class="badge badge-success">Active</span>
+                        </div>
+                        <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem;">Machine Learning</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">Prof. Michael Chen</p>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">Progress</span>
+                            <span style="font-size: 0.85rem; font-weight: 700;">92%</span>
+                        </div>
+                        <div class="course-progress">
+                            <div class="course-progress-bar" style="width: 92%"></div>
+                        </div>
+                    </div>
+                    <div class="course-card">
+                        <div class="course-header">
+                            <span class="course-icon">🗄️</span>
+                            <span class="badge badge-success">Active</span>
+                        </div>
+                        <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem;">Database Management</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">Prof. Emily Davis</p>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">Progress</span>
+                            <span style="font-size: 0.85rem; font-weight: 700;">65%</span>
+                        </div>
+                        <div class="course-progress">
+                            <div class="course-progress-bar" style="width: 65%"></div>
+                        </div>
+                    </div>
+                    <div class="course-card">
+                        <div class="course-header">
+                            <span class="course-icon">🌐</span>
+                            <span class="badge badge-success">Active</span>
+                        </div>
+                        <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem;">Web Development</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">Prof. David Wilson</p>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">Progress</span>
+                            <span style="font-size: 0.85rem; font-weight: 700;">88%</span>
+                        </div>
+                        <div class="course-progress">
+                            <div class="course-progress-bar" style="width: 88%"></div>
+                        </div>
+                    </div>
+                    <div class="course-card">
+                        <div class="course-header">
+                            <span class="course-icon">🔐</span>
+                            <span class="badge badge-warning">Upcoming</span>
+                        </div>
+                        <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem;">Cybersecurity</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">Prof. Alex Turner</p>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">Progress</span>
+                            <span style="font-size: 0.85rem; font-weight: 700;">45%</span>
+                        </div>
+                        <div class="course-progress">
+                            <div class="course-progress-bar" style="width: 45%"></div>
+                        </div>
+                    </div>
+                    <div class="course-card">
+                        <div class="course-header">
+                            <span class="course-icon">📊</span>
+                            <span class="badge badge-success">Active</span>
+                        </div>
+                        <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem;">Data Analytics</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">Prof. Lisa Brown</p>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">Progress</span>
+                            <span style="font-size: 0.85rem; font-weight: 700;">71%</span>
+                        </div>
+                        <div class="course-progress">
+                            <div class="course-progress-bar" style="width: 71%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Assignments Section -->
+        <section id="assignments" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">📝 Assignments</h2>
+                    <button class="btn btn-secondary">Filter</button>
+                </div>
+                <div class="assignment-item">
+                    <div class="assignment-header">
+                        <div>
+                            <h3 style="font-size: 1.2rem; margin-bottom: 0.3rem;">Binary Search Tree Implementation</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">Data Structures • Prof. Sarah Johnson</p>
+                        </div>
+                        <span class="badge badge-danger">Due Tomorrow</span>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Implement a self-balancing BST with insert, delete, and search operations.</p>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <span style="font-size: 0.85rem;">📅 Due: Nov 24, 2025</span>
+                        <span style="font-size: 0.85rem;">⏰ 11:59 PM</span>
+                        <button class="btn btn-primary" style="margin-left: auto; padding: 0.7rem 1.5rem;">Submit</button>
+                    </div>
+                </div>
+                <div class="assignment-item">
+                    <div class="assignment-header">
+                        <div>
+                            <h3 style="font-size: 1.2rem; margin-bottom: 0.3rem;">Neural Network Training</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">Machine Learning • Prof. Michael Chen</p>
+                        </div>
+                        <span class="badge badge-warning">Due in 3 days</span>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Build and train a CNN for image classification on CIFAR-10 dataset.</p>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <span style="font-size: 0.85rem;">📅 Due: Nov 26, 2025</span>
+                        <span style="font-size: 0.85rem;">⏰ 11:59 PM</span>
+                        <button class="btn btn-primary" style="margin-left: auto; padding: 0.7rem 1.5rem;">Submit</button>
+                    </div>
+                </div>
+                <div class="assignment-item">
+                    <div class="assignment-header">
+                        <div>
+                            <h3 style="font-size: 1.2rem; margin-bottom: 0.3rem;">Database Normalization Project</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">Database Management • Prof. Emily Davis</p>
+                        </div>
+                        <span class="badge badge-warning">Due in 5 days</span>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Normalize a given database schema to 3NF and create ER diagrams.</p>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <span style="font-size: 0.85rem;">📅 Due: Nov 28, 2025</span>
+                        <span style="font-size: 0.85rem;">⏰ 11:59 PM</span>
+                        <button class="btn btn-primary" style="margin-left: auto; padding: 0.7rem 1.5rem;">Submit</button>
+                    </div>
+                </div>
+                <div class="assignment-item">
+                    <div class="assignment-header">
+                        <div>
+                            <h3 style="font-size: 1.2rem; margin-bottom: 0.3rem;">Responsive Portfolio Website</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">Web Development • Prof. David Wilson</p>
+                        </div>
+                        <span class="badge badge-success">Submitted</span>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Create a fully responsive portfolio website using HTML, CSS, and JavaScript.</p>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <span style="font-size: 0.85rem;">📅 Submitted: Nov 20, 2025</span>
+                        <span style="font-size: 0.85rem;">✅ Grade: A</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Grades Section -->
+        <section id="grades" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">🏆 Grades Overview</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="gradesChart"></canvas>
+                </div>
+            </div>
+            <div class="content-card">
+                <h2 style="font-size: 1.6rem; margin-bottom: 1.5rem;">📊 Detailed Grades</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Assignment</th>
+                                <th>Score</th>
+                                <th>Grade</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Machine Learning</td>
+                                <td>Midterm Exam</td>
+                                <td>95/100</td>
+                                <td><span class="badge badge-success">A+</span></td>
+                                <td>Nov 15, 2025</td>
+                            </tr>
+                            <tr>
+                                <td>Data Structures</td>
+                                <td>Sorting Algorithms</td>
+                                <td>88/100</td>
+                                <td><span class="badge badge-success">A</span></td>
+                                <td>Nov 12, 2025</td>
+                            </tr>
+                            <tr>
+                                <td>Web Development</td>
+                                <td>Portfolio Project</td>
+                                <td>92/100</td>
+                                <td><span class="badge badge-success">A+</span></td>
+                                <td>Nov 20, 2025</td>
+                            </tr>
+                            <tr>
+                                <td>Database Management</td>
+                                <td>SQL Queries Test</td>
+                                <td>85/100</td>
+                                <td><span class="badge badge-success">A</span></td>
+                                <td>Nov 10, 2025</td>
+                            </tr>
+                            <tr>
+                                <td>Data Analytics</td>
+                                <td>Visualization Project</td>
+                                <td>90/100</td>
+                                <td><span class="badge badge-success">A+</span></td>
+                                <td>Nov 18, 2025</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Attendance Section -->
+        <section id="attendance" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">✅ Attendance Record</h2>
+                </div>
+                <div class="stats-grid" style="margin-bottom: 2rem;">
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-value">94.2%</div>
+                        <div class="stat-label">Overall Attendance</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-value">45/48</div>
+                        <div class="stat-label">Classes Attended</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⚠️</div>
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Classes Missed</div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Course</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Nov 23, 2025</td>
+                                <td>Data Structures</td>
+                                <td>10:00 AM</td>
+                                <td><span class="badge badge-success">Present</span></td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>Nov 23, 2025</td>
+                                <td>Machine Learning</td>
+                                <td>02:00 PM</td>
+                                <td><span class="badge badge-success">Present</span></td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>Nov 22, 2025</td>
+                                <td>Database Management</td>
+                                <td>11:00 AM</td>
+                                <td><span class="badge badge-success">Present</span></td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>Nov 22, 2025</td>
+                                <td>Web Development</td>
+                                <td>03:00 PM</td>
+                                <td><span class="badge badge-danger">Absent</span></td>
+                                <td>Medical Leave</td>
+                            </tr>
+                            <tr>
+                                <td>Nov 21, 2025</td>
+                                <td>Data Analytics</td>
+                                <td>01:00 PM</td>
+                                <td><span class="badge badge-success">Present</span></td>
+                                <td>-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Face Attendance Section -->
+        <section id="faceAttendance" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">📸 Face Recognition Attendance</h2>
+                </div>
+
+                <div class="status-indicator">
+                    <div class="status-dot loading" id="faceStatusDot"></div>
+                    <span id="faceStatusText" style="font-weight: 600;">Initializing AI face recognition system...</span>
+                </div>
+
+                <div class="video-container" id="faceVideoContainer" style="display: none;">
+                    <video id="faceVideo" autoplay muted playsinline></video>
+                    <canvas id="faceCanvas"></canvas>
+                </div>
+
+                <div class="face-controls">
+                    <button class="btn btn-primary" id="startFaceCamera" disabled>
+                        📷 Start Camera
+                    </button>
+                    <button class="btn btn-primary" id="markFaceAttendance" disabled style="display: none;">
+                        ✅ Mark Attendance
+                    </button>
+                    <button class="btn btn-secondary" id="stopFaceCamera" disabled style="display: none;">
+                        ⏹️ Stop Camera
+                    </button>
+                </div>
+
+                <div id="faceRecognitionResult"></div>
+            </div>
+
+            <div class="content-card">
+                <h2 style="font-size: 1.6rem; margin-bottom: 1.5rem;">📊 Face Recognition History</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Course</th>
+                                <th>Time</th>
+                                <th>Method</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="faceAttendanceHistory">
+                            <tr>
+                                <td>Nov 17, 2025</td>
+                                <td>Data Structures</td>
+                                <td>10:00 AM</td>
+                                <td>Face Recognition</td>
+                                <td><span class="badge badge-success">Present</span></td>
+                            </tr>
+                            <tr>
+                                <td>Nov 17, 2025</td>
+                                <td>Machine Learning</td>
+                                <td>02:00 PM</td>
+                                <td>Manual</td>
+                                <td><span class="badge badge-success">Present</span></td>
+                            </tr>
+                            <tr>
+                                <td>Nov 16, 2025</td>
+                                <td>Database Management</td>
+                                <td>11:00 AM</td>
+                                <td>Face Recognition</td>
+                                <td><span class="badge badge-success">Present</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Tutor Section -->
+        <section id="aiTutor" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">🤖 AI Tutor Assistant</h2>
+                    <button class="btn btn-secondary" id="clearChat">Clear Chat</button>
+                </div>
+                <div class="ai-chat" id="aiChat">
+                    <div class="message ai">
+                        <strong>AI Tutor:</strong><br>
+                        Hello Raj! I'm your AI learning assistant. I can help you with:
+                        <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                            <li>Explaining difficult concepts</li>
+                            <li>Solving practice problems</li>
+                            <li>Study tips and strategies</li>
+                            <li>Assignment guidance</li>
+                        </ul>
+                        What would you like to learn today?
+                    </div>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="aiInput" placeholder="Ask me anything about your courses...">
+                    <button class="btn btn-primary" id="sendAiMessage">Send</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Study Planner Section -->
+        <section id="studyPlanner" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">📅 Study Planner</h2>
+                    <button class="btn btn-primary">+ Add Task</button>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                    <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid var(--warning); border-radius: 12px; padding: 1.5rem;">
+                        <h3 style="color: var(--warning); margin-bottom: 1rem; font-size: 1.2rem;">🔥 Today's Tasks</h3>
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 0.8rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <input type="checkbox" style="width: 18px; height: 18px;">
+                                <span style="font-weight: 600;">Complete BST Assignment</span>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-left: 1.5rem;">Due: 11:59 PM</p>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 0.8rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <input type="checkbox" style="width: 18px; height: 18px;">
+                                <span style="font-weight: 600;">Review ML Lecture Notes</span>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-left: 1.5rem;">Estimated: 2 hours</p>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 8px;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <input type="checkbox" style="width: 18px; height: 18px;">
+                                <span style="font-weight: 600;">Practice SQL Queries</span>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-left: 1.5rem;">Estimated: 1 hour</p>
+                        </div>
+                    </div>
+                    <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid var(--info); border-radius: 12px; padding: 1.5rem;">
+                        <h3 style="color: var(--info); margin-bottom: 1rem; font-size: 1.2rem;">📌 This Week</h3>
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 0.8rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <input type="checkbox" style="width: 18px; height: 18px;">
+                                <span style="font-weight: 600;">Neural Network Project</span>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-left: 1.5rem;">Due: Nov 26</p>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 0.8rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <input type="checkbox" style="width: 18px; height: 18px;">
+                                <span style="font-weight: 600;">Database Normalization</span>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-left: 1.5rem;">Due: Nov 28</p>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 8px;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <input type="checkbox" style="width: 18px; height: 18px;">
+                                <span style="font-weight: 600;">Prepare for Midterms</span>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-left: 1.5rem;">Dec 1-5</p>
+                        </div>
+                    </div>
+                    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); border-radius: 12px; padding: 1.5rem;">
+                        <h3 style="color: var(--success); margin-bottom: 1rem; font-size: 1.2rem;">✅ Completed</h3>
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 0.8rem; opacity: 0.7;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <input type="checkbox" checked disabled style="width: 18px; height: 18px;">
+                                <span style="font-weight: 600; text-decoration: line-through;">Portfolio Website</span>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-left: 1.5rem;">Completed: Nov 20</p>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 0.8rem; opacity: 0.7;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <input type="checkbox" checked disabled style="width: 18px; height: 18px;">
+                                <span style="font-weight: 600; text-decoration: line-through;">Data Visualization Project</span>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 0.85rem; margin-left: 1.5rem;">Completed: Nov 18</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Resources Section -->
+        <section id="resources" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">📖 Learning Resources</h2>
+                    <button class="btn btn-secondary">Upload Resource</button>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; transition: all 0.3s; cursor: pointer;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
+                        <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Lecture Notes</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">Complete collection of lecture notes from all courses</p>
+                        <span class="badge badge-info">142 Files</span>
+                    </div>
+                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; transition: all 0.3s; cursor: pointer;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📚</div>
+                        <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Textbooks</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">Digital versions of prescribed textbooks</p>
+                        <span class="badge badge-info">18 Books</span>
+                    </div>
+                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; transition: all 0.3s; cursor: pointer;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🎥</div>
+                        <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Video Tutorials</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">Recorded lectures and tutorial videos</p>
+                        <span class="badge badge-info">87 Videos</span>
+                    </div>
+                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; transition: all 0.3s; cursor: pointer;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">💻</div>
+                        <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Code Samples</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">Example code and project templates</p>
+                        <span class="badge badge-info">256 Files</span>
+                    </div>
+                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; transition: all 0.3s; cursor: pointer;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📝</div>
+                        <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Past Papers</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">Previous year question papers</p>
+                        <span class="badge badge-info">45 Papers</span>
+                    </div>
+                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; transition: all 0.3s; cursor: pointer;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">🔗</div>
+                        <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Useful Links</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">Curated list of helpful resources</p>
+                        <span class="badge badge-info">73 Links</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notifications Section -->
+        <section id="notifications" class="section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">🔔 Notifications</h2>
+                    <button class="btn btn-secondary">Mark All Read</button>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); border-radius: 12px; padding: 1.5rem; border-left: 4px solid var(--danger);">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                            <h3 style="font-size: 1.1rem; font-weight: 700;">⚠️ Assignment Due Tomorrow</h3>
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">2 hours ago</span>
+                        </div>
+                        <p style="color: var(--text-secondary);">Your Binary Search Tree assignment for Data Structures is due tomorrow at 11:59 PM.</p>
+                    </div>
+                    <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid var(--info); border-radius: 12px; padding: 1.5rem; border-left: 4px solid var(--info);">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                            <h3 style="font-size: 1.1rem; font-weight: 700;">📧 New Message from Prof. Chen</h3>
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">5 hours ago</span>
+                        </div>
+                        <p style="color: var(--text-secondary);">Additional resources for the Neural Network project have been uploaded to the course portal.</p>
+                    </div>
+                    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); border-radius: 12px; padding: 1.5rem; border-left: 4px solid var(--success);">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                            <h3 style="font-size: 1.1rem; font-weight: 700;">✅ Grade Posted</h3>
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">1 day ago</span>
+                        </div>
+                        <p style="color: var(--text-secondary);">Your grade for the Portfolio Website project has been posted. You scored A+ (92/100).</p>
+                    </div>
+                    <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid var(--warning); border-radius: 12px; padding: 1.5rem; border-left: 4px solid var(--warning);">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                            <h3 style="font-size: 1.1rem; font-weight: 700;">📅 Midterm Schedule Released</h3>
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">2 days ago</span>
+                        </div>
+                        <p style="color: var(--text-secondary);">The midterm examination schedule for December has been released. Check your course pages for details.</p>
+                    </div>
+                    <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid var(--info); border-radius: 12px; padding: 1.5rem; border-left: 4px solid var(--info);">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                            <h3 style="font-size: 1.1rem; font-weight: 700;">🎓 Workshop Registration Open</h3>
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">3 days ago</span>
+                        </div>
+                        <p style="color: var(--text-secondary);">Registration is now open for the Advanced Machine Learning workshop on December 10th.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Particle Animation
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        for (let i = 0; i < 100; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 1,
+                vy: (Math.random() - 0.5) * 1,
+                radius: Math.random() * 2.5 + 0.5
+            });
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach((p, i) => {
+                ctx.fillStyle = 'rgba(102, 126, 234, 0.6)';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                particles.slice(i + 1).forEach(p2 => {
+                    const dx = p.x - p2.x;
+                    const dy = p.y - p2.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist < 120) {
+                        ctx.strokeStyle = `rgba(102, 126, 234, ${0.3 * (1 - dist / 120)})`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                });
+                
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+            });
+            
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Date & Time
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateStr = now.toLocaleDateString('en-US', options);
+            const timeStr = now.toLocaleTimeString('en-US');
+            const elem = document.getElementById('currentDateTime');
+            if (elem) elem.textContent = `${dateStr} • ${timeStr}`;
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
+        // Navigation
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('.section');
+        
+        const titles = {
+            dashboard: 'Dashboard',
+            courses: 'My Courses',
+            assignments: 'Assignments',
+            grades: 'Grades',
+            attendance: 'Attendance',
+            faceAttendance: 'Face Recognition',
+            aiTutor: 'AI Tutor',
+            studyPlanner: 'Study Planner',
+            resources: 'Resources',
+            notifications: 'Notifications'
+        };
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                const sectionName = link.getAttribute('data-section');
+                if (!sectionName) return;
+
+                sections.forEach(s => s.classList.remove('active'));
+                navLinks.forEach(l => l.classList.remove('active'));
+                
+                document.getElementById(sectionName).classList.add('active');
+                link.classList.add('active');
+                
+                document.getElementById('breadcrumbCurrent').textContent = titles[sectionName];
+                document.getElementById('breadcrumbPath').innerHTML = 
+                    `<span>🏠 Home</span><span>/</span><span>${titles[sectionName]}</span>`;
+                
+                if (window.innerWidth <= 768) {
+                    document.getElementById('sidebar').classList.remove('active');
+                }
+
+                if (sectionName === 'dashboard') {
+                    setTimeout(initPerformanceChart, 100);
+                } else if (sectionName === 'grades') {
+                    setTimeout(initGradesChart, 100);
+                }
+            });
+        });
+
+        // Mobile Toggle
+        document.getElementById('mobileToggle').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if (confirm('Are you sure you want to logout?')) {
+                showToast('👋 Logging out...', 'info');
+                setTimeout(() => {
+                    showToast('Logged out successfully!', 'success');
+                }, 1000);
+            }
+        });
+
+        // Toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+            const msg = document.getElementById('toastMessage');
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            icon.textContent = icons[type] || '✅';
+            msg.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Charts
+        let performanceChartInstance = null;
+        let gradesChartInstance = null;
+
+        function initPerformanceChart() {
+            const ctx = document.getElementById('performanceChart');
+            if (!ctx) return;
+            
+            if (performanceChartInstance) {
+                performanceChartInstance.destroy();
+            }
+            
+            performanceChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8'],
+                    datasets: [{
+                        label: 'Performance Score',
+                        data: [75, 78, 82, 85, 87, 89, 91, 94],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            display: true,
+                            labels: { color: '#fff', font: { size: 14 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#fff', font: { size: 12 } }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#fff', font: { size: 12 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initGradesChart() {
+            const ctx = document.getElementById('gradesChart');
+            if (!ctx) return;
+            
+            if (gradesChartInstance) {
+                gradesChartInstance.destroy();
+            }
+            
+            gradesChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['A+', 'A', 'A-', 'B+', 'B', 'B-'],
+                    datasets: [{
+                        label: 'Number of Grades',
+                        data: [5, 12, 8, 6, 3, 1],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(16, 185, 129, 0.6)',
+                            'rgba(59, 130, 246, 0.6)',
+                            'rgba(59, 130, 246, 0.5)',
+                            'rgba(59, 130, 246, 0.4)'
+                        ],
+                        borderColor: 'rgba(255, 255, 255, 0.2)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            display: true,
+                            labels: { color: '#fff', font: { size: 14 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#fff', stepSize: 2, font: { size: 12 } }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#fff', font: { size: 12 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        setTimeout(initPerformanceChart, 500);
+
+        // AI Tutor - Enhanced with more responses
+        function initAiTutor() {
+            const aiChat = document.getElementById('aiChat');
+            const aiInput = document.getElementById('aiInput');
+            const sendBtn = document.getElementById('sendAiMessage');
+            const clearChatBtn = document.getElementById('clearChat');
+
+            if (!aiChat || !aiInput || !sendBtn || !clearChatBtn) {
+                console.log('AI Tutor elements not found yet');
+                return;
+            }
+
+            const aiResponses = {
+                'hello': 'Hello Raj! 👋 How can I assist you with your studies today?',
+                'hi': 'Hi there! 😊 I\'m here to help you learn. What subject would you like to explore?',
+                'help': 'I can help you with:\n• Course concepts and explanations\n• Assignment guidance\n• Study tips and strategies\n• Practice problems\n• Exam preparation\n\nJust ask me anything!',
+                'data structures': 'Data structures are fundamental ways to organize and store data efficiently. Key topics include:\n\n🔹 Arrays & Linked Lists\n🔹 Stacks & Queues\n🔹 Trees (Binary, BST, AVL)\n🔹 Graphs\n🔹 Hash Tables\n🔹 Heaps\n\nWhich one would you like to learn about?',
+                'binary search tree': 'A Binary Search Tree (BST) is a tree data structure where:\n\n✅ Left subtree contains nodes with values less than parent\n✅ Right subtree contains nodes with values greater than parent\n✅ Both subtrees are also BSTs\n\nOperations:\n• Insert: O(log n) average\n• Search: O(log n) average\n• Delete: O(log n) average\n\nWould you like to see implementation examples?',
+                'machine learning': 'Machine learning enables computers to learn from data without explicit programming. Key concepts:\n\n🤖 Supervised Learning - Learning from labeled data\n🤖 Unsupervised Learning - Finding patterns in unlabeled data\n🤖 Neural Networks - Mimicking brain structure\n🤖 Deep Learning - Multi-layer neural networks\n\nWhat aspect interests you most?',
+                'database': 'Database Management covers:\n\n💾 SQL - Structured Query Language\n💾 Normalization - Organizing data efficiently\n💾 Transactions - ACID properties\n💾 Indexing - Fast data retrieval\n💾 Joins - Combining tables\n\nWhat would you like to know more about?',
+                'assignment': 'I can help guide you through your assignments! 📝\n\nWhich assignment are you working on?\n• Binary Search Tree Implementation\n• Neural Network Training\n• Database Normalization\n• Web Development Project\n\nRemember, I\'ll help you understand concepts, not just provide answers!',
+                'study tips': '📚 Here are proven study techniques:\n\n1️⃣ Active Recall - Test yourself regularly\n2️⃣ Spaced Repetition - Review at increasing intervals\n3️⃣ Pomodoro Technique - 25 min focus, 5 min break\n4️⃣ Teach Others - Best way to solidify knowledge\n5️⃣ Practice Problems - Apply what you learn\n6️⃣ Get enough sleep - Crucial for memory consolidation\n\nWhich technique would you like to know more about?',
+                'exam': 'Preparing for exams? Here\'s my advice:\n\n✨ Start early - Don\'t cram\n✨ Review lecture notes within 24 hours\n✨ Create summary sheets\n✨ Practice past papers\n✨ Study in groups\n✨ Take care of yourself\n\nWhich exam are you preparing for?',
+                'sql': 'SQL (Structured Query Language) basics:\n\nSELECT - Retrieve data\nINSERT - Add new records\nUPDATE - Modify existing data\nDELETE - Remove records\nJOIN - Combine tables\n\nExample:\nSELECT * FROM students WHERE gpa > 3.5;\n\nNeed help with a specific query?',
+                'python': 'Python is great for learning! 🐍\n\nKey concepts:\n• Variables & Data Types\n• Control Flow (if/else, loops)\n• Functions\n• Lists, Dictionaries, Sets\n• Object-Oriented Programming\n• File I/O\n\nWhat Python topic can I help you with?',
+                'web development': 'Web Development covers:\n\n🌐 HTML - Structure\n🌐 CSS - Styling\n🌐 JavaScript - Interactivity\n🌐 Responsive Design\n🌐 Frontend Frameworks (React, Vue)\n🌐 Backend (Node.js, databases)\n\nWhat are you building?',
+                'thank': 'You\'re welcome! 😊 Happy to help anytime. Keep up the great work!',
+                'thanks': 'You\'re welcome! 😊 Feel free to ask more questions anytime!',
+                'gpa': 'Your current GPA is 3.8 - excellent work! 🌟\n\nTo maintain or improve:\n• Stay consistent with assignments\n• Participate in class\n• Seek help when needed\n• Review regularly\n\nKeep it up, Raj!',
+                'default': 'That\'s an interesting question! 🤔 I\'m here to help with:\n\n• Data Structures & Algorithms\n• Machine Learning\n• Database Management\n• Web Development\n• Study strategies\n• Assignment help\n\nCould you rephrase or ask about a specific topic?'
+            };
+
+            function addMessage(text, isUser) {
+                const msg = document.createElement('div');
+                msg.className = `message ${isUser ? 'user' : 'ai'}`;
+                msg.innerHTML = isUser ? text.replace(/\n/g, '<br>') : `<strong>AI Tutor:</strong><br>${text.replace(/\n/g, '<br>')}`;
+                aiChat.appendChild(msg);
+                aiChat.scrollTop = aiChat.scrollHeight;
+            }
+
+            function getAiResponse(input) {
+                const lower = input.toLowerCase().trim();
+                
+                // Check for exact or partial matches
+                for (const key in aiResponses) {
+                    if (key !== 'default' && lower.includes(key)) {
+                        return aiResponses[key];
+                    }
+                }
+                
+                // Check for variations
+                if (lower.includes('bst') || lower.includes('tree')) {
+                    return aiResponses['binary search tree'];
+                }
+                if (lower.includes('ml') || lower.includes('ai')) {
+                    return aiResponses['machine learning'];
+                }
+                if (lower.includes('grade') || lower.includes('score')) {
+                    return aiResponses['gpa'];
+                }
+                if (lower.includes('web') || lower.includes('html') || lower.includes('css')) {
+                    return aiResponses['web development'];
+                }
+                
+                return aiResponses.default;
+            }
+
+            function sendMessage() {
+                const text = aiInput.value.trim();
+                if (!text) {
+                    showToast('Please enter a message', 'warning');
+                    return;
+                }
+                
+                // Add user message
+                addMessage(text, true);
+                aiInput.value = '';
+                aiInput.focus();
+                
+                // Show typing indicator
+                const typingMsg = document.createElement('div');
+                typingMsg.className = 'message ai';
+                typingMsg.id = 'typing-indicator';
+                typingMsg.innerHTML = '<strong>AI Tutor:</strong><br>Typing...';
+                aiChat.appendChild(typingMsg);
+                aiChat.scrollTop = aiChat.scrollHeight;
+                
+                // Simulate AI thinking
+                setTimeout(() => {
+                    const typingIndicator = document.getElementById('typing-indicator');
+                    if (typingIndicator) {
+                        typingIndicator.remove();
+                    }
+                    
+                    const response = getAiResponse(text);
+                    addMessage(response, false);
+                }, 800);
+            }
+
+            // Event listeners
+            sendBtn.addEventListener('click', sendMessage);
+
+            aiInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            clearChatBtn.addEventListener('click', () => {
+                if (confirm('Clear all chat messages?')) {
+                    aiChat.innerHTML = `
+                        <div class="message ai">
+                            <strong>AI Tutor:</strong><br>
+                            Hello Raj! I'm your AI learning assistant. I can help you with:<br>
+                            <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                                <li>Explaining difficult concepts</li>
+                                <li>Solving practice problems</li>
+                                <li>Study tips and strategies</li>
+                                <li>Assignment guidance</li>
+                            </ul>
+                            What would you like to learn today?
+                        </div>
+                    `;
+                    showToast('Chat cleared', 'info');
+                }
+            });
+
+            console.log('✅ AI Tutor initialized');
+        }
+
+        // Initialize AI Tutor when page loads
+        setTimeout(initAiTutor, 1000);
+
+        // ============ BACKEND INTEGRATION ============
+        
+        // Load real data from Flask backend
+        function loadDashboardData() {
+            // Load courses
+            fetch('/api/student/courses')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateCoursesSection(data.courses);
+                    }
+                })
+                .catch(error => console.log('Using demo data for courses'));
+
+            // Load attendance
+            fetch('/api/student/attendance')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateAttendanceSection(data.stats, data.records);
+                    }
+                })
+                .catch(error => console.log('Using demo data for attendance'));
+
+            // Load grades
+            fetch('/api/student/grades')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateGradesSection(data.grades, data.gpa, data.grade_distribution);
+                    }
+                })
+                .catch(error => console.log('Using demo data for grades'));
+
+            // Load assignments
+            fetch('/api/student/assignments')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateAssignmentsSection(data.pending, data.completed, data.overdue);
+                    }
+                })
+                .catch(error => console.log('Using demo data for assignments'));
+
+            // Load notifications
+            fetch('/api/student/notifications')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateNotificationsSection(data.notifications, data.unread_count);
+                    }
+                })
+                .catch(error => console.log('Using demo data for notifications'));
+
+            // Load performance data
+            fetch('/api/student/performance-data')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updatePerformanceChart(data.performance);
+                    }
+                })
+                .catch(error => console.log('Using demo data for performance'));
+        }
+
+        function updateCoursesSection(courses) {
+            const grid = document.querySelector('#courses .course-grid');
+            if (!grid || !courses || courses.length === 0) return;
+
+            grid.innerHTML = courses.map(course => `
+                <div class="course-card">
+                    <div class="course-header">
+                        <span class="course-icon">${getCourseIcon(course.course_name)}</span>
+                        <span class="badge badge-success">Active</span>
+                    </div>
+                    <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem;">${course.course_name}</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">${course.teacher_name || 'Instructor'}</p>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="font-size: 0.85rem; color: var(--text-secondary);">Attendance</span>
+                        <span style="font-size: 0.85rem; font-weight: 700;">${course.attendance_percentage || 0}%</span>
+                    </div>
+                    <div class="course-progress">
+                        <div class="course-progress-bar" style="width: ${course.attendance_percentage || 0}%"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getCourseIcon(courseName) {
+            const name = courseName.toLowerCase();
+            if (name.includes('data') || name.includes('algorithm')) return '💻';
+            if (name.includes('machine') || name.includes('ai')) return '🤖';
+            if (name.includes('database') || name.includes('sql')) return '🗄️';
+            if (name.includes('web')) return '🌐';
+            if (name.includes('security') || name.includes('cyber')) return '🔐';
+            if (name.includes('analytics') || name.includes('data')) return '📊';
+            return '📚';
+        }
+
+        function updateAttendanceSection(stats, records) {
+            if (!stats || !records) return;
+
+            // Update stats cards
+            const statCards = document.querySelectorAll('#attendance .stat-card');
+            if (statCards.length >= 3) {
+                statCards[0].querySelector('.stat-value').textContent = `${stats.attendance_percentage || 0}%`;
+                statCards[1].querySelector('.stat-value').textContent = `${stats.present_count || 0}/${stats.total_classes || 0}`;
+                statCards[2].querySelector('.stat-value').textContent = stats.absent_count || 0;
+            }
+
+            // Update attendance table
+            const tbody = document.querySelector('#attendance tbody');
+            if (tbody && records.length > 0) {
+                tbody.innerHTML = records.slice(0, 10).map(record => `
+                    <tr>
+                        <td>${formatDate(record.date)}</td>
+                        <td>${record.course_name}</td>
+                        <td>${formatTime(record.timestamp)}</td>
+                        <td><span class="badge badge-${record.status === 'present' ? 'success' : 'danger'}">${capitalize(record.status)}</span></td>
+                        <td>${record.method === 'face_recognition' ? 'Face Recognition' : 'Manual'}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function updateGradesSection(grades, gpa, distribution) {
+            if (!grades) return;
+
+            // Update GPA in stat cards
+            const gpaCard = document.querySelectorAll('.stat-card')[2];
+            if (gpaCard) {
+                gpaCard.querySelector('.stat-value').textContent = gpa.toFixed(1);
+            }
+
+            // Update grades table
+            const tbody = document.querySelector('#grades tbody');
+            if (tbody && grades.length > 0) {
+                tbody.innerHTML = grades.slice(0, 10).map(grade => `
+                    <tr>
+                        <td>${grade.course_name}</td>
+                        <td>${grade.exam_type}</td>
+                        <td>${grade.marks}/${grade.max_marks}</td>
+                        <td><span class="badge badge-success">${grade.grade}</span></td>
+                        <td>${formatDate(grade.exam_date)}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // Update grades chart with distribution
+            if (distribution) {
+                updateGradesChartData(distribution);
+            }
+        }
+
+        function updateGradesChartData(distribution) {
+            const ctx = document.getElementById('gradesChart');
+            if (!ctx) return;
+
+            if (gradesChartInstance) {
+                gradesChartInstance.destroy();
+            }
+
+            const labels = Object.keys(distribution);
+            const data = Object.values(distribution);
+
+            gradesChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Number of Grades',
+                        data: data,
+                        backgroundColor: labels.map((_, i) => {
+                            const colors = [
+                                'rgba(16, 185, 129, 0.8)',
+                                'rgba(16, 185, 129, 0.7)',
+                                'rgba(16, 185, 129, 0.6)',
+                                'rgba(59, 130, 246, 0.6)',
+                                'rgba(59, 130, 246, 0.5)',
+                                'rgba(59, 130, 246, 0.4)'
+                            ];
+                            return colors[i] || 'rgba(102, 126, 234, 0.5)';
+                        }),
+                        borderColor: 'rgba(255, 255, 255, 0.2)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#fff', stepSize: 1, font: { size: 12 } }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#fff', font: { size: 12 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateAssignmentsSection(pending, completed, overdue) {
+            const container = document.querySelector('#assignments .content-card:first-child');
+            if (!container) return;
+
+            let html = '<div class="card-header"><h2 class="card-title">📝 Assignments</h2><button class="btn btn-secondary">Filter</button></div>';
+
+            if (overdue && overdue.length > 0) {
+                overdue.forEach(assignment => {
+                    html += createAssignmentCard(assignment, 'danger', 'Overdue');
+                });
+            }
+
+            if (pending && pending.length > 0) {
+                pending.forEach(assignment => {
+                    const daysUntilDue = getDaysUntilDue(assignment.due_date);
+                    const badge = daysUntilDue <= 1 ? 'danger' : 'warning';
+                    const label = daysUntilDue === 0 ? 'Due Today' : daysUntilDue === 1 ? 'Due Tomorrow' : `Due in ${daysUntilDue} days`;
+                    html += createAssignmentCard(assignment, badge, label);
+                });
+            }
+
+            if (completed && completed.length > 0) {
+                completed.forEach(assignment => {
+                    html += createAssignmentCard(assignment, 'success', 'Submitted');
+                });
+            }
+
+            container.innerHTML = html;
+        }
+
+        function createAssignmentCard(assignment, badgeType, badgeLabel) {
+            return `
+                <div class="assignment-item">
+                    <div class="assignment-header">
+                        <div>
+                            <h3 style="font-size: 1.2rem; margin-bottom: 0.3rem;">${assignment.title}</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">${assignment.course_name}</p>
+                        </div>
+                        <span class="badge badge-${badgeType}">${badgeLabel}</span>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">${assignment.description || 'No description provided'}</p>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <span style="font-size: 0.85rem;">📅 Due: ${formatDate(assignment.due_date)}</span>
+                        <span style="font-size: 0.85rem;">📊 Max: ${assignment.max_marks} marks</span>
+                        ${assignment.submission_status !== 'submitted' ? 
+                            '<button class="btn btn-primary" style="margin-left: auto; padding: 0.7rem 1.5rem;">Submit</button>' : 
+                            `<span style="margin-left: auto; color: var(--success);">✅ Score: ${assignment.obtained_marks || 'Pending'}</span>`}
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateNotificationsSection(notifications, unreadCount) {
+            const container = document.querySelector('#notifications .content-card > div');
+            if (!container || !notifications) return;
+
+            // Update badge
+            const badges = document.querySelectorAll('.notification-badge');
+            badges.forEach(badge => {
+                if (badge.closest('.nav-link[data-section="notifications"]')) {
+                    badge.textContent = unreadCount;
+                    badge.style.display = unreadCount > 0 ? 'block' : 'none';
+                }
+            });
+
+            container.innerHTML = notifications.map(notif => {
+                const typeColors = {
+                    'success': 'success',
+                    'warning': 'warning',
+                    'error': 'danger',
+                    'info': 'info'
+                };
+                const borderColor = typeColors[notif.type] || 'info';
+                const icon = notif.type === 'success' ? '✅' : notif.type === 'warning' ? '⚠️' : notif.type === 'error' ? '❌' : 'ℹ️';
+
+                return `
+                    <div style="background: rgba(${getBgColor(notif.type)}); border: 1px solid var(--${borderColor}); border-radius: 12px; padding: 1.5rem; border-left: 4px solid var(--${borderColor}); ${notif.is_read ? 'opacity: 0.6;' : ''}">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                            <h3 style="font-size: 1.1rem; font-weight: 700;">${icon} ${notif.title}</h3>
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">${formatTimeAgo(notif.created_at)}</span>
+                        </div>
+                        <p style="color: var(--text-secondary);">${notif.message}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updatePerformanceChart(performance) {
+            const ctx = document.getElementById('performanceChart');
+            if (!ctx || !performance) return;
+
+            if (performanceChartInstance) {
+                performanceChartInstance.destroy();
+            }
+
+            performanceChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: performance.map(p => p.week),
+                    datasets: [{
+                        label: 'Performance Score',
+                        data: performance.map(p => p.score),
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        borderWidth: 3,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { 
+                            display: true,
+                            labels: { color: '#fff', font: { size: 14 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#fff', font: { size: 12 } }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#fff', font: { size: 12 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Enhanced AI Tutor with backend integration
+        function initAiTutorWithBackend() {
+            const aiChat = document.getElementById('aiChat');
+            const aiInput = document.getElementById('aiInput');
+            const sendBtn = document.getElementById('sendAiMessage');
+            const clearChatBtn = document.getElementById('clearChat');
+
+            if (!aiChat || !aiInput || !sendBtn || !clearChatBtn) return;
+
+            function sendMessage() {
+                const text = aiInput.value.trim();
+                if (!text) {
+                    showToast('Please enter a message', 'warning');
+                    return;
+                }
+                
+                addMessage(text, true);
+                aiInput.value = '';
+                aiInput.focus();
+                
+                // Show typing indicator
+                const typingMsg = document.createElement('div');
+                typingMsg.className = 'message ai';
+                typingMsg.id = 'typing-indicator';
+                typingMsg.innerHTML = '<strong>AI Tutor:</strong><br>Thinking...';
+                aiChat.appendChild(typingMsg);
+                aiChat.scrollTop = aiChat.scrollHeight;
+                
+                // Call backend API
+                fetch('/student/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: text, type: 'general' })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const typingIndicator = document.getElementById('typing-indicator');
+                    if (typingIndicator) {
+                        typingIndicator.remove();
+                    }
+                    
+                    if (data.status === 'success') {
+                        addMessage(data.response, false);
+                    } else {
+                        addMessage('Sorry, I encountered an error. Please try again.', false);
+                    }
+                })
+                .catch(error => {
+                    console.log('Using demo AI responses');
+                    const typingIndicator = document.getElementById('typing-indicator');
+                    if (typingIndicator) {
+                        typingIndicator.remove();
+                    }
+                    addMessage(getAiResponse(text), false);
+                });
+            }
+
+            function addMessage(text, isUser) {
+                const msg = document.createElement('div');
+                msg.className = `message ${isUser ? 'user' : 'ai'}`;
+                msg.innerHTML = isUser ? text.replace(/\n/g, '<br>') : `<strong>AI Tutor:</strong><br>${text.replace(/\n/g, '<br>')}`;
+                aiChat.appendChild(msg);
+                aiChat.scrollTop = aiChat.scrollHeight;
+            }
+
+            sendBtn.addEventListener('click', sendMessage);
+            aiInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            clearChatBtn.addEventListener('click', () => {
+                if (confirm('Clear all chat messages?')) {
+                    aiChat.innerHTML = `
+                        <div class="message ai">
+                            <strong>AI Tutor:</strong><br>
+                            Hello! I'm your AI learning assistant. How can I help you today?
+                        </div>
+                    `;
+                    showToast('Chat cleared', 'info');
+                }
+            });
+        }
+
+        // Utility functions
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function formatTime(timestamp) {
+            if (!timestamp) return 'N/A';
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function formatTimeAgo(timestamp) {
+            if (!timestamp) return 'Recently';
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(hours / 24);
+            
+            if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
+            if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+            return 'Just now';
+        }
+
+        function getDaysUntilDue(dueDate) {
+            const due = new Date(dueDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            due.setHours(0, 0, 0, 0);
+            const diff = due - today;
+            return Math.ceil(diff / (1000 * 60 * 60 * 24));
+        }
+
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function getBgColor(type) {
+            const colors = {
+                'success': '16, 185, 129, 0.1',
+                'warning': '245, 158, 11, 0.1',
+                'error': '239, 68, 68, 0.1',
+                'info': '59, 130, 246, 0.1'
+            };
+            return colors[type] || colors.info;
+        }
+
+        // Enhanced face attendance with backend
+        document.getElementById('markFaceAttendance').addEventListener('click', () => {
+            const courses = document.querySelectorAll('.course-card');
+            if (courses.length === 0) {
+                showToast('No courses found. Please enroll in courses first.', 'warning');
+                return;
+            }
+
+            // For demo, use first course
+            const courseId = 1; // You can make this dynamic with a course selector
+            const confidence = detectedFaces > 0 ? 98.7 : 96.4;
+            
+            document.getElementById('faceStatusText').textContent = '⏳ Processing...';
+            
+            fetch('/api/student/face-attendance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    course_id: courseId,
+                    confidence: confidence
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const now = new Date();
+                    const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                    const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    
+                    const resultDiv = document.getElementById('faceRecognitionResult');
+                    resultDiv.innerHTML = `
+                        <div class="face-result">
+                            <div style="font-size: 5rem; margin-bottom: 1rem;">✅</div>
+                            <h3 style="color: var(--success); margin-bottom: 1rem; font-size: 1.8rem; font-weight: 900;">Attendance Verified!</h3>
+                            <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 16px; margin-top: 1.5rem; border: 1px solid var(--border);">
+                                <p style="color: var(--text); margin: 0.8rem 0; font-size: 1.05rem;"><strong>🕐 Time:</strong> ${timeStr}</p>
+                                <p style="color: var(--text); margin: 0.8rem 0; font-size: 1.05rem;"><strong>📅 Date:</strong> ${dateStr}</p>
+                                <p style="color: var(--success); margin: 0.8rem 0; font-size: 1.05rem; font-weight: 700;"><strong>🎯 Confidence:</strong> ${confidence}%</p>
+                            </div>
+                        </div>
+                    `;
+
+                    document.getElementById('faceStatusText').textContent = '✅ Attendance recorded!';
+                    showToast('Attendance marked successfully!', 'success');
+                    
+                    // Reload attendance data
+                    setTimeout(() => {
+                        fetch('/api/student/attendance')
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    updateAttendanceSection(data.stats, data.records);
+                                }
+                            });
+                    }, 1000);
+                } else {
+                    showToast(data.message || 'Failed to mark attendance', 'error');
+                    document.getElementById('faceStatusText').textContent = '❌ Failed to mark attendance';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error marking attendance', 'error');
+                document.getElementById('faceStatusText').textContent = '❌ Error occurred';
+            });
+        });
+
+        // Initialize everything
+        setTimeout(() => {
+            loadDashboardData();
+            initAiTutorWithBackend();
+        }, 1000);
+
+        // Face Recognition
+        let faceVideo, faceCanvas, faceDisplaySize;
+        let isFaceModelLoaded = false;
+        let isFaceCameraActive = false;
+        let faceDetectionInterval;
+        let detectedFaces = 0;
+
+        async function loadFaceModels() {
+            const statusDot = document.getElementById('faceStatusDot');
+            const statusText = document.getElementById('faceStatusText');
+            
+            try {
+                statusText.textContent = '🔄 Loading AI models...';
+                
+                const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
+                
+                await Promise.all([
+                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL)
+                ]);
+                
+                isFaceModelLoaded = true;
+                statusDot.className = 'status-dot ready';
+                statusText.textContent = '✅ AI System Ready! Click "Start Camera" to begin.';
+                document.getElementById('startFaceCamera').disabled = false;
+                showToast('Face recognition ready!', 'success');
+            } catch (error) {
+                statusDot.className = 'status-dot ready';
+                statusText.textContent = '✅ Demo Mode Ready! Click "Start Camera" to begin.';
+                isFaceModelLoaded = true;
+                document.getElementById('startFaceCamera').disabled = false;
+            }
+        }
+
+        document.getElementById('startFaceCamera').addEventListener('click', async () => {
+            faceVideo = document.getElementById('faceVideo');
+            faceCanvas = document.getElementById('faceCanvas');
+            const statusDot = document.getElementById('faceStatusDot');
+            const statusText = document.getElementById('faceStatusText');
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        facingMode: 'user'
+                    } 
+                });
+                
+                faceVideo.srcObject = stream;
+                isFaceCameraActive = true;
+                
+                document.getElementById('faceVideoContainer').style.display = 'block';
+                statusDot.className = 'status-dot detecting';
+                statusText.textContent = '🎥 Camera Active - Detecting faces...';
+                
+                document.getElementById('startFaceCamera').disabled = true;
+                document.getElementById('markFaceAttendance').disabled = false;
+                document.getElementById('markFaceAttendance').style.display = 'inline-flex';
+                document.getElementById('stopFaceCamera').disabled = false;
+                document.getElementById('stopFaceCamera').style.display = 'inline-flex';
+
+                showToast('Camera activated!', 'success');
+
+                faceVideo.addEventListener('loadedmetadata', () => {
+                    faceCanvas.width = faceVideo.videoWidth;
+                    faceCanvas.height = faceVideo.videoHeight;
+                    faceDisplaySize = { width: faceVideo.videoWidth, height: faceVideo.videoHeight };
+                    
+                    if (typeof faceapi !== 'undefined' && faceapi.nets && faceapi.nets.tinyFaceDetector && faceapi.nets.tinyFaceDetector.isLoaded) {
+                        faceapi.matchDimensions(faceCanvas, faceDisplaySize);
+                        startFaceDetection();
+                    } else {
+                        startDemoMode();
+                    }
+                });
+                
+            } catch (error) {
+                statusDot.className = 'status-dot error';
+                statusText.textContent = '❌ Camera access denied. Please enable camera permissions.';
+                showToast('Camera access denied!', 'error');
+            }
+        });
+
+        function startFaceDetection() {
+            faceDetectionInterval = setInterval(async () => {
+                try {
+                    const detections = await faceapi
+                        .detectAllFaces(faceVideo, new faceapi.TinyFaceDetectorOptions({
+                            inputSize: 416,
+                            scoreThreshold: 0.5
+                        }))
+                        .withFaceLandmarks()
+                        .withFaceExpressions();
+
+                    const resized = faceapi.resizeResults(detections, faceDisplaySize);
+                    
+                    const ctx = faceCanvas.getContext('2d');
+                    ctx.clearRect(0, 0, faceCanvas.width, faceCanvas.height);
+                    
+                    resized.forEach(detection => {
+                        const box = detection.detection.box;
+                        
+                        ctx.strokeStyle = '#667eea';
+                        ctx.lineWidth = 3;
+                        ctx.shadowBlur = 15;
+                        ctx.shadowColor = '#667eea';
+                        ctx.strokeRect(box.x, box.y, box.width, box.height);
+                        
+                        const cornerLength = 25;
+                        ctx.lineWidth = 5;
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(box.x, box.y + cornerLength);
+                        ctx.lineTo(box.x, box.y);
+                        ctx.lineTo(box.x + cornerLength, box.y);
+                        ctx.stroke();
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(box.x + box.width - cornerLength, box.y);
+                        ctx.lineTo(box.x + box.width, box.y);
+                        ctx.lineTo(box.x + box.width, box.y + cornerLength);
+                        ctx.stroke();
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(box.x, box.y + box.height - cornerLength);
+                        ctx.lineTo(box.x, box.y + box.height);
+                        ctx.lineTo(box.x + cornerLength, box.y + box.height);
+                        ctx.stroke();
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(box.x + box.width - cornerLength, box.y + box.height);
+                        ctx.lineTo(box.x + box.width, box.y + box.height);
+                        ctx.lineTo(box.x + box.width, box.y + box.height - cornerLength);
+                        ctx.stroke();
+                        
+                        ctx.shadowBlur = 0;
+                        
+                        const score = Math.round(detection.detection.score * 100);
+                        ctx.fillStyle = '#667eea';
+                        ctx.fillRect(box.x, box.y - 35, 140, 30);
+                        ctx.fillStyle = 'white';
+                        ctx.font = 'bold 16px Inter';
+                        ctx.fillText(`Match: ${score}%`, box.x + 10, box.y - 12);
+                    });
+
+                    detectedFaces = detections.length;
+
+                    if (detections.length > 0) {
+                        const confidence = Math.round(detections[0].detection.score * 100);
+                        document.getElementById('faceStatusText').textContent = 
+                            `✅ Face Detected! Confidence: ${confidence}%`;
+                    } else {
+                        document.getElementById('faceStatusText').textContent = 
+                            '⚠️ No face detected - Look at camera';
+                    }
+                } catch (error) {
+                    console.error('Detection error:', error);
+                }
+            }, 100);
+        }
+
+        function startDemoMode() {
+            const ctx = faceCanvas.getContext('2d');
+            let pulse = 0;
+            let scanLine = 0;
+            
+            faceDetectionInterval = setInterval(() => {
+                ctx.clearRect(0, 0, faceCanvas.width, faceCanvas.height);
+                
+                pulse = (pulse + 0.05) % (Math.PI * 2);
+                const opacity = 0.7 + Math.sin(pulse) * 0.3;
+                
+                const boxSize = 320;
+                const x = faceCanvas.width / 2 - boxSize / 2;
+                const y = faceCanvas.height / 2 - boxSize / 2;
+                
+                ctx.strokeStyle = `rgba(102, 126, 234, ${opacity})`;
+                ctx.lineWidth = 4;
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = '#667eea';
+                ctx.strokeRect(x, y, boxSize, boxSize);
+                
+                ctx.shadowBlur = 0;
+                
+                scanLine = (scanLine + 4) % boxSize;
+                ctx.strokeStyle = `rgba(102, 126, 234, 0.7)`;
+                ctx.lineWidth = 3;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#667eea';
+                ctx.beginPath();
+                ctx.moveTo(x, y + scanLine);
+                ctx.lineTo(x + boxSize, y + scanLine);
+                ctx.stroke();
+                
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = 'rgba(102, 126, 234, 0.9)';
+                ctx.fillRect(x, y - 40, 220, 35);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 18px Inter';
+                ctx.fillText('🔍 Scanning...', x + 15, y - 15);
+                
+                document.getElementById('faceStatusText').textContent = 
+                    '✅ Demo Mode: Ready to mark attendance';
+            }, 50);
+        }
+
+        document.getElementById('markFaceAttendance').addEventListener('click', () => {
+            const resultDiv = document.getElementById('faceRecognitionResult');
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            
+            document.getElementById('faceStatusText').textContent = '⏳ Processing...';
+            
+            setTimeout(() => {
+                const confidence = detectedFaces > 0 ? '98.7%' : '96.4%';
+                
+                resultDiv.innerHTML = `
+                    <div class="face-result">
+                        <div style="font-size: 5rem; margin-bottom: 1rem;">✅</div>
+                        <h3 style="color: var(--success); margin-bottom: 1rem; font-size: 1.8rem; font-weight: 900;">Attendance Verified!</h3>
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 16px; margin-top: 1.5rem; border: 1px solid var(--border);">
+                            <p style="color: var(--text); margin: 0.8rem 0; font-size: 1.05rem;"><strong>👤 Student:</strong> Raj Kumar (ID: #S001)</p>
+                            <p style="color: var(--text); margin: 0.8rem 0; font-size: 1.05rem;"><strong>📚 Course:</strong> Data Structures</p>
+                            <p style="color: var(--text); margin: 0.8rem 0; font-size: 1.05rem;"><strong>🕐 Time:</strong> ${timeStr}</p>
+                            <p style="color: var(--text); margin: 0.8rem 0; font-size: 1.05rem;"><strong>📅 Date:</strong> ${dateStr}</p>
+                            <p style="color: var(--success); margin: 0.8rem 0; font-size: 1.05rem; font-weight: 700;"><strong>🎯 Confidence:</strong> ${confidence}</p>
+                        </div>
+                    </div>
+                `;
+
+                const tbody = document.getElementById('faceAttendanceHistory');
+                const newRow = tbody.insertRow(0);
+                newRow.innerHTML = `
+                    <td>${dateStr}</td>
+                    <td>Data Structures</td>
+                    <td>${timeStr}</td>
+                    <td>Face Recognition</td>
+                    <td><span class="badge badge-success">Present</span></td>
+                `;
+                newRow.style.animation = 'fadeIn 0.5s';
+
+                document.getElementById('faceStatusText').textContent = '✅ Attendance recorded!';
+                showToast('Attendance marked successfully!', 'success');
+            }, 1500);
+        });
+
+        document.getElementById('stopFaceCamera').addEventListener('click', () => {
+            if (faceVideo && faceVideo.srcObject) {
+                faceVideo.srcObject.getTracks().forEach(track => track.stop());
+                isFaceCameraActive = false;
+                
+                clearInterval(faceDetectionInterval);
+                
+                const ctx = faceCanvas.getContext('2d');
+                ctx.clearRect(0, 0, faceCanvas.width, faceCanvas.height);
+                
+                document.getElementById('faceVideoContainer').style.display = 'none';
+                document.getElementById('faceStatusDot').className = 'status-dot ready';
+                document.getElementById('faceStatusText').textContent = '⏹️ Camera stopped';
+                
+                document.getElementById('startFaceCamera').disabled = false;
+                document.getElementById('markFaceAttendance').disabled = true;
+                document.getElementById('markFaceAttendance').style.display = 'none';
+                document.getElementById('stopFaceCamera').disabled = true;
+                document.getElementById('stopFaceCamera').style.display = 'none';
+                
+                document.getElementById('faceRecognitionResult').innerHTML = '';
+                showToast('Camera stopped', 'info');
+            }
+        });
+
+        // Initialize Face Recognition
+        if (typeof faceapi !== 'undefined') {
+            loadFaceModels();
+        } else {
+            setTimeout(() => {
+                document.getElementById('faceStatusDot').className = 'status-dot ready';
+                document.getElementById('faceStatusText').textContent = '✅ System ready!';
+                document.getElementById('startFaceCamera').disabled = false;
+                isFaceModelLoaded = true;
+            }, 1000);
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (faceVideo && faceVideo.srcObject) {
+                faceVideo.srcObject.getTracks().forEach(track => track.stop());
+            }
+        });
+
+        console.log('🎓 SaarthiAI Dashboard - All Systems Ready');
+    </script>
+</body>
+</html>

@@ -203,13 +203,14 @@ For issues or questions:
 ## 📸 Screenshots
 
 ### Home Screen
-![Home Screen](screenshots/home.png)
+![Home Screen](Screenshot%202025-11-27%20100958.png)
 
 ### Navigation Screen
-![Navigation Screen](screenshots/navigation.png)
+![Navigation Screen](Screenshot%202025-11-27%20101028.png)
 
 ### QR Scan Screen
-![QR Scan](screenshots/qr.png)
+![QR Scan](Screenshot%202025-11-27%20155535.png)
+
 
 
 **Made with ❤️ for Education**

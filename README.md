@@ -200,5 +200,16 @@ For issues or questions:
 - [ ] Online exam module
 
 ---
+## 📸 Screenshots
+
+### Home Screen
+![Home Screen](screenshots/home.png)
+
+### Navigation Screen
+![Navigation Screen](screenshots/navigation.png)
+
+### QR Scan Screen
+![QR Scan](screenshots/qr.png)
+
 
 **Made with ❤️ for Education**

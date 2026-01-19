@@ -203,16 +203,32 @@ For issues or questions:
 📸 Screenshots
 🏁 Starting Page
 
+🔗 View Image
+
 🔐 Login Page
+
+🔗 View Image
 
 📊 Dashboard
 
+🔗 View Image
+
 ⭐ Features
+
+🔗 View Image
 
 🤖 AI Tutor Assistance
 
+🔗 View Image
+
 📸 Face Recognition Attendance
+
+🔗 View Image
 
 👨‍👩‍👧 Parent Page
 
+🔗 View Image
+
 📈 Parent Dashboard
+
+🔗 View Image

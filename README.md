@@ -200,35 +200,42 @@ For issues or questions:
 - [ ] Online exam module
 
 ---
-📸 Screenshots
-🏁 Starting Page
+## 📸 Screenshots
 
-🔗 View Image
+### 🏁 Starting Page
+<img src="assets/images/starting page.png" width="800"/>
 
-🔐 Login Page
+---
 
-🔗 View Image
+### 🔐 Login Page
+<img src="assets/images/login page.jpeg" width="800"/>
 
-📊 Dashboard
+---
 
-🔗 View Image
+### 📊 Dashboard
+<img src="assets/images/dashboard.png" width="800"/>
 
-⭐ Features
+---
 
-🔗 View Image
+### ⭐ Features
+<img src="assets/images/features.png" width="800"/>
 
-🤖 AI Tutor Assistance
+---
 
-🔗 View Image
+### 🤖 AI Tutor Assistance
+<img src="assets/images/ai tutuor assistance.jpeg" width="800"/>
 
-📸 Face Recognition Attendance
+---
 
-🔗 View Image
+### 📸 Face Recognition Attendance
+<img src="assets/images/face recognision attendence page.jpeg" width="800"/>
 
-👨‍👩‍👧 Parent Page
+---
 
-🔗 View Image
+### 👨‍👩‍👧 Parent Page
+<img src="assets/images/parent page.jpeg" width="800"/>
 
-📈 Parent Dashboard
+---
 
-🔗 View Image
+### 📈 Parent Dashboard
+<img src="assets/images/parent dashboard.jpeg" width="800"/>

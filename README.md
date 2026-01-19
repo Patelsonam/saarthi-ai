@@ -200,17 +200,19 @@ For issues or questions:
 - [ ] Online exam module
 
 ---
-## 📸 Screenshots
+📸 Screenshots
+🏁 Starting Page
 
-### Home Screen
-![Home Screen](Screenshot%202025-11-27%20100958.png)
+🔐 Login Page
 
-### Navigation Screen
-![Navigation Screen](Screenshot%202025-11-27%20101028.png)
+📊 Dashboard
 
-### QR Scan Screen
-![QR Scan](Screenshot%202025-11-27%20155535.png)
+⭐ Features
 
+🤖 AI Tutor Assistance
 
+📸 Face Recognition Attendance
 
-**Made with ❤️ for Education**
+👨‍👩‍👧 Parent Page
+
+📈 Parent Dashboard
